@@ -1,4 +1,5 @@
 import Hero from "@/components/home/Hero";
+import PlatformBenefits from "@/components/home/PlatformBenefits";
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
           NOTE: Featured Equipment and Popular Categories sections are
           intentionally excluded for now (requested by the owner). */}
       <Hero />
+      <PlatformBenefits />
     </>
   );
 }
