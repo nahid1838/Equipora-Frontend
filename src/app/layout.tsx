@@ -33,6 +33,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Applies the saved theme before the page paints, so there is no flash
+            of the wrong theme on reload. ThemeToggle uses the same key. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try {
+              const theme = localStorage.getItem("equipora-theme");
+              if (theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+                document.documentElement.classList.add("dark");
+              }
+            } catch (e) {}`,
+          }}
+        />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
