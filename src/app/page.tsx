@@ -2,6 +2,7 @@ import Hero from "@/components/home/Hero";
 import PlatformBenefits from "@/components/home/PlatformBenefits";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Testimonials from "@/components/home/Testimonials";
+import FinalCTA from "@/components/home/FinalCTA";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <PlatformBenefits />
       <WhyChooseUs />
       <Testimonials />
+      <FinalCTA />
     </>
   );
 }
