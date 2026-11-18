@@ -31,6 +31,7 @@ const FinalCTA = () => {
           {/* CTA button */}
           <Button
             className="shrink-0 bg-white text-emerald-800 hover:bg-emerald-50"
+            nativeButton={false}
             render={<Link href="/sign-up" />}
           >
             Get Started Free

@@ -27,7 +27,11 @@ const WhyChooseUs = () => {
             We make equipment rental simple, secure, and affordable for
             everyone — from one-day projects to long-term rentals.
           </p>
-          <Button className="mt-8" render={<Link href="/equipment" />}>
+          <Button
+            className="mt-8"
+            nativeButton={false}
+            render={<Link href="/equipment" />}
+          >
             Learn More
             <ArrowRight data-icon="inline-end" className="h-4 w-4" />
           </Button>

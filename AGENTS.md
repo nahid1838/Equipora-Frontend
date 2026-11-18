@@ -85,6 +85,15 @@ Equipment Rental Platform: owners list equipment; customers browse, book, and pa
 - All buttons work; forms validate; API requests show loading + error states; handle empty states and unexpected errors gracefully.
 - No Lorem Ipsum; no browser `alert()` for notifications; no unnecessary files/components; no giant single components; no overly complicated folder structure; don't change working code without a valid reason.
 
+## Base UI Button Rules (this project uses Base UI, not Radix)
+
+- `asChild` does not exist. For link-buttons use `render` + `nativeButton={false}`:
+  ```tsx
+  <Button nativeButton={false} render={<Link href="/x" />}>Label</Button>
+  ```
+- Omitting `nativeButton={false}` logs a Base UI console error.
+- shadcn components use `render={...}` instead of Radix's `asChild` throughout.
+
 ## Project Structure
 
 Frontend and backend live in **separate directories/repos**. Proposed frontend structure (this repo, `src/` based):

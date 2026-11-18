@@ -73,6 +73,7 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 className="hidden sm:inline-flex"
+                nativeButton={false}
                 render={<Link href="/dashboard" />}
               >
                 <LayoutDashboard data-icon="inline-start" className="h-4 w-4" />
@@ -92,11 +93,16 @@ const Navbar = () => {
               <Button
                 variant="outline"
                 className="hidden sm:inline-flex"
+                nativeButton={false}
                 render={<Link href="/sign-in" />}
               >
                 Sign In
               </Button>
-              <Button className="hidden sm:inline-flex" render={<Link href="/sign-up" />}>
+              <Button
+                className="hidden sm:inline-flex"
+                nativeButton={false}
+                render={<Link href="/sign-up" />}
+              >
                 Get Started
                 <ArrowRight data-icon="inline-end" className="h-4 w-4" />
               </Button>
@@ -133,7 +139,11 @@ const Navbar = () => {
 
             <div className="flex gap-2.5 pt-3">
               {session ? (
-                <Button className="flex-1" render={<Link href="/dashboard" />}>
+                <Button
+                  className="flex-1"
+                  nativeButton={false}
+                  render={<Link href="/dashboard" />}
+                >
                   <LayoutDashboard data-icon="inline-start" className="h-4 w-4" />
                   Dashboard
                 </Button>
@@ -142,11 +152,16 @@ const Navbar = () => {
                   <Button
                     variant="outline"
                     className="flex-1"
+                    nativeButton={false}
                     render={<Link href="/sign-in" />}
                   >
                     Sign In
                   </Button>
-                  <Button className="flex-1" render={<Link href="/sign-up" />}>
+                  <Button
+                    className="flex-1"
+                    nativeButton={false}
+                    render={<Link href="/sign-up" />}
+                  >
                     Get Started
                   </Button>
                 </>
