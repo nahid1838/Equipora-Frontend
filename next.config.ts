@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  images: {
+    // Allow external image URLs (sample avatars for now; imgbb is used
+    // for equipment image uploads in later phases)
+    remotePatterns: [{ protocol: "https", hostname: "randomuser.me" }],
+  },
   turbopack: {
     rules: {
       "*.css": {

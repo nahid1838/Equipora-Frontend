@@ -1,6 +1,7 @@
 import Hero from "@/components/home/Hero";
 import PlatformBenefits from "@/components/home/PlatformBenefits";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
+import Testimonials from "@/components/home/Testimonials";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <Hero />
       <PlatformBenefits />
       <WhyChooseUs />
+      <Testimonials />
     </>
   );
 }
