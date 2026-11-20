@@ -14,10 +14,11 @@ import { authClient } from "@/lib/auth-client";
 const SignInForm = () => {
   const router = useRouter();
   const returnTo = useSearchParams().get("returnTo");
-  // Only accept a single equipment route segment as a return destination.
+  // Accept only the internal routes that send visitors here to sign in.
   const destination =
     returnTo &&
-    /^\/equipment\/(?:[\w.!'()*~-]|%[\da-f]{2})+$/i.test(returnTo) &&
+    (/^\/equipment\/(?:[\w.!'()*~-]|%[\da-f]{2})+$/i.test(returnTo) ||
+      /^\/dashboard(?:\/(?:customer|owner|admin)(?:\/[a-z-]+)?)?$/.test(returnTo)) &&
     new URL(returnTo, "https://equipora.invalid").pathname === returnTo
       ? returnTo
       : "/";

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+import PublicChrome from "@/components/shared/PublicChrome";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,9 +48,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             } catch (e) {}`,
           }}
         />
-        <Navbar />
+        <Suspense>
+          <PublicChrome><Navbar /></PublicChrome>
+        </Suspense>
         <main className="flex-1">{children}</main>
-        <Footer />
+        <Suspense>
+          <PublicChrome><Footer /></PublicChrome>
+        </Suspense>
         {/* Toast notifications (used instead of alert()) */}
         <Toaster position="top-center" richColors />
       </body>
