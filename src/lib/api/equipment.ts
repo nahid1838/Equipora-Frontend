@@ -1,7 +1,42 @@
 import type { ApiSuccess, Pagination } from "@/types/api"
-import type { Equipment, EquipmentQuery } from "@/types/equipment"
-import { apiRequest } from "./client"
+import type { CreateEquipmentPayload, Equipment, EquipmentQuery, UpdateEquipmentPayload } from "@/types/equipment"
+import { apiRequest, apiRequestMessage } from "./client"
 import { ApiError } from "./errors"
+
+export async function getOwnedEquipment(signal?: AbortSignal): Promise<Equipment[]> {
+  const { data } = await apiRequest<Equipment[]>("/api/equipment/owner/mine", {
+    auth: "protected", signal,
+  })
+  return data
+}
+
+export async function createEquipment(body: CreateEquipmentPayload): Promise<Equipment> {
+  const { data } = await apiRequest<Equipment>("/api/equipment", {
+    auth: "protected", method: "POST", body,
+  })
+  return data
+}
+
+export async function updateEquipment(id: string, body: UpdateEquipmentPayload): Promise<Equipment> {
+  const { data } = await apiRequest<Equipment | null>(`/api/equipment/${encodeURIComponent(id)}`, {
+    auth: "protected", method: "PATCH", body,
+  })
+  if (!data) throw new ApiError("Equipment not found.", { status: 404 })
+  return data
+}
+
+export async function deleteEquipment(id: string): Promise<void> {
+  await apiRequestMessage(`/api/equipment/${encodeURIComponent(id)}`, {
+    auth: "protected", method: "DELETE",
+  })
+}
+
+export async function uploadEquipmentImage(image: string): Promise<string> {
+  const { data } = await apiRequest<{ url: string }>("/api/uploads/image", {
+    auth: "protected", method: "POST", body: { image },
+  })
+  return data.url
+}
 
 export async function getEquipmentDetails(
   id: string,

@@ -9,6 +9,8 @@ import {
 } from "lucide-react"
 import DashboardShell from "@/components/dashboard/DashboardShell"
 import CustomerRentals from "@/components/dashboard/CustomerRentals"
+import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
+import OwnerEquipmentList from "@/components/dashboard/OwnerEquipmentList"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 
@@ -93,6 +95,15 @@ async function DashboardContent({ params }: PageProps) {
         </section>
       ) : role === "customer" && section === "rentals" ? (
         <CustomerRentals />
+      ) : role === "owner" && section === "add-equipment" ? (
+        <OwnerEquipmentForm />
+      ) : role === "owner" && section === "equipment" ? (
+        <OwnerEquipmentList />
+      ) : role === "owner" && section === "rentals" ? (
+        <section className="rounded-2xl border bg-card p-6 sm:p-8">
+          <h2 className="font-heading text-xl font-semibold">Rental history</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Rentals for your equipment will appear here when booking opens.</p>
+        </section>
       ) : (
         <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
           This section is coming soon.
