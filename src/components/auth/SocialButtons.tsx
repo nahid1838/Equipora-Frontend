@@ -34,13 +34,14 @@ const GitHubIcon = () => (
 
 type SocialButtonsProps = {
   onSuccess: () => void;
+  callbackURL?: string;
 };
 
 // Google + GitHub buttons shared by the Sign In and Sign Up pages
-const SocialButtons = ({ onSuccess }: SocialButtonsProps) => {
+const SocialButtons = ({ onSuccess, callbackURL = "/" }: SocialButtonsProps) => {
   const handleSocialLogin = async (provider: "google" | "github") => {
     try {
-      await authClient.signIn.social({ provider, callbackURL: "/" });
+      await authClient.signIn.social({ provider, callbackURL });
       onSuccess();
     } catch {
       toast.error("Social login failed. Please try again.");

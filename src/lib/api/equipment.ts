@@ -3,6 +3,22 @@ import type { Equipment, EquipmentQuery } from "@/types/equipment"
 import { apiRequest } from "./client"
 import { ApiError } from "./errors"
 
+export async function getEquipmentDetails(
+  id: string,
+  signal?: AbortSignal
+): Promise<Equipment> {
+  if (!/^[\da-f]{24}$/i.test(id)) {
+    throw new ApiError("This equipment link has an invalid ID.", { status: 400 })
+  }
+
+  const { data } = await apiRequest<Equipment>(
+    `/api/equipment/${encodeURIComponent(id)}`,
+    { auth: "protected", signal }
+  )
+
+  return data
+}
+
 // The equipment list always comes back with pagination metadata.
 // apiRequest() types pagination as optional, so we require it here.
 export type EquipmentListResponse = ApiSuccess<Equipment[]> & {

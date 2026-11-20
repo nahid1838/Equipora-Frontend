@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,16 @@ import AuthLayout from "@/components/auth/AuthLayout";
 import SocialButtons from "@/components/auth/SocialButtons";
 import { authClient } from "@/lib/auth-client";
 
-const SignInPage = () => {
+const SignInForm = () => {
   const router = useRouter();
+  const returnTo = useSearchParams().get("returnTo");
+  // Only accept a single equipment route segment as a return destination.
+  const destination =
+    returnTo &&
+    /^\/equipment\/(?:[\w.!'()*~-]|%[\da-f]{2})+$/i.test(returnTo) &&
+    new URL(returnTo, "https://equipora.invalid").pathname === returnTo
+      ? returnTo
+      : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -50,7 +58,7 @@ const SignInPage = () => {
     }
 
     toast.success("Signed in successfully! Welcome back.");
-    router.push("/");
+    router.push(destination);
     router.refresh();
   };
 
@@ -111,7 +119,7 @@ const SignInPage = () => {
       </form>
 
       <div className="mt-6">
-        <SocialButtons onSuccess={() => {}} />
+        <SocialButtons onSuccess={() => {}} callbackURL={destination} />
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -124,4 +132,10 @@ const SignInPage = () => {
   );
 };
 
-export default SignInPage;
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-center" role="status">Loading sign in…</p>}>
+      <SignInForm />
+    </Suspense>
+  );
+}
