@@ -46,22 +46,26 @@ const labelClassName = "space-y-1.5 text-sm font-medium"
 
 type EquipmentFiltersProps = {
   value: EquipmentFilterValues
-  onChange: (next: EquipmentFilterValues) => void
+  onChange: (patch: Partial<EquipmentFilterValues>) => void
   onReset: () => void
 }
 
 const EquipmentFilters = ({
   value,
-  onChange,
+  onChange: update,
   onReset,
 }: EquipmentFiltersProps) => {
-  const update = (patch: Partial<EquipmentFilterValues>) => {
-    onChange({ ...value, ...patch })
-  }
-
+  const minPrice = Number(value.minPrice)
+  const maxPrice = Number(value.maxPrice)
+  const minPriceInvalid = !Number.isFinite(minPrice) || minPrice < 0
+  const maxPriceInvalid = !Number.isFinite(maxPrice) || maxPrice < 0
   const hasPriceRange = value.minPrice !== "" && value.maxPrice !== ""
-  const priceRangeInvalid =
-    hasPriceRange && Number(value.minPrice) > Number(value.maxPrice)
+  const priceRangeInvalid = hasPriceRange && minPrice > maxPrice
+  const priceError = minPriceInvalid || maxPriceInvalid
+    ? "Enter prices of 0 or more."
+    : priceRangeInvalid
+      ? "Minimum price cannot be greater than maximum price."
+      : undefined
 
   return (
     <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
@@ -174,26 +178,32 @@ const EquipmentFilters = ({
             <Input
               type="number"
               min={0}
+              step="any"
               value={value.minPrice}
               onChange={(event) => update({ minPrice: event.target.value })}
               placeholder="Min"
               aria-label="Minimum price"
+              aria-invalid={minPriceInvalid || priceRangeInvalid}
+              aria-describedby={priceError ? "equipment-price-error" : undefined}
               className="w-28"
             />
             <span className="text-sm text-muted-foreground">to</span>
             <Input
               type="number"
               min={0}
+              step="any"
               value={value.maxPrice}
               onChange={(event) => update({ maxPrice: event.target.value })}
               placeholder="Max"
               aria-label="Maximum price"
+              aria-invalid={maxPriceInvalid || priceRangeInvalid}
+              aria-describedby={priceError ? "equipment-price-error" : undefined}
               className="w-28"
             />
           </div>
-          {priceRangeInvalid && (
-            <p className="text-xs text-destructive">
-              Minimum price cannot be greater than maximum price.
+          {priceError && (
+            <p id="equipment-price-error" className="text-xs text-destructive">
+              {priceError}
             </p>
           )}
         </div>

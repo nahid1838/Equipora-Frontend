@@ -5,14 +5,12 @@ import { Button } from "@/components/ui/button"
 type EquipmentPaginationProps = {
   page: number
   totalPages: number
-  total: number
   onPageChange: (page: number) => void
 }
 
 const EquipmentPagination = ({
   page,
   totalPages,
-  total,
   onPageChange,
 }: EquipmentPaginationProps) => {
   // Nothing to page through.
@@ -21,9 +19,12 @@ const EquipmentPagination = ({
   }
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 border-t pt-4 sm:flex-row">
+    <nav
+      aria-label="Equipment pagination"
+      className="flex flex-col items-center justify-between gap-3 border-t pt-4 sm:flex-row"
+    >
       <p className="text-sm text-muted-foreground">
-        {total} {total === 1 ? "item" : "items"} · Page {page} of {totalPages}
+        Page {page} of {totalPages}
       </p>
 
       <div className="flex items-center gap-2">
@@ -35,9 +36,6 @@ const EquipmentPagination = ({
         >
           Previous
         </Button>
-        <span className="min-w-16 text-center text-sm font-medium">
-          {page} / {totalPages}
-        </span>
         <Button
           type="button"
           variant="outline"
@@ -47,7 +45,7 @@ const EquipmentPagination = ({
           Next
         </Button>
       </div>
-    </div>
+    </nav>
   )
 }
 
