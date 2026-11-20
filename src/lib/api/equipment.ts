@@ -1,7 +1,25 @@
 import type { ApiSuccess, Pagination } from "@/types/api"
-import type { CreateEquipmentPayload, Equipment, EquipmentQuery, UpdateEquipmentPayload } from "@/types/equipment"
+import type { CreateEquipmentPayload, Equipment, EquipmentQuery, EquipmentStatus, UpdateEquipmentPayload } from "@/types/equipment"
 import { apiRequest, apiRequestMessage } from "./client"
 import { ApiError } from "./errors"
+
+export async function getAdminEquipment(signal?: AbortSignal): Promise<Equipment[]> {
+  const { data } = await apiRequest<Equipment[]>("/api/equipment/admin/all", {
+    auth: "protected", signal,
+  })
+  return data
+}
+
+export async function moderateEquipment(
+  id: string,
+  status: Exclude<EquipmentStatus, "pending">
+): Promise<Equipment> {
+  const { data } = await apiRequest<Equipment | null>(`/api/equipment/${encodeURIComponent(id)}/status`, {
+    auth: "protected", method: "PATCH", body: { status },
+  })
+  if (!data) throw new ApiError("Equipment not found.", { status: 404 })
+  return data
+}
 
 export async function getOwnedEquipment(signal?: AbortSignal): Promise<Equipment[]> {
   const { data } = await apiRequest<Equipment[]>("/api/equipment/owner/mine", {

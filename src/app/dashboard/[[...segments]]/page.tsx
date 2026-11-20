@@ -10,7 +10,7 @@ import {
 import DashboardShell from "@/components/dashboard/DashboardShell"
 import CustomerRentals from "@/components/dashboard/CustomerRentals"
 import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
-import OwnerEquipmentList from "@/components/dashboard/OwnerEquipmentList"
+import EquipmentManagementList from "@/components/dashboard/EquipmentManagementList"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 
@@ -68,42 +68,55 @@ async function DashboardContent({ params }: PageProps) {
   return (
     <DashboardShell role={roleLabel} user={session.user} active={active} links={[overview, ...sections]}>
       {active === overview ? (
-        <section className="overflow-hidden rounded-2xl border bg-card">
-          <div className="border-b bg-gradient-to-br from-secondary/65 to-card px-5 py-7 sm:px-7 sm:py-9">
-            <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">Welcome, {session.user.name}</h2>
-            {role === "customer" && (
-              <Button
-                className="mt-4"
-                size="lg"
-                nativeButton={false}
-                render={<Link href="/equipment" />}
-              >
-                Browse equipment
-                <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
-              </Button>
-            )}
-          </div>
-          <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-7 xl:grid-cols-3">
-            {sections.map(({ href, title, icon: Icon }) => (
-              <Link key={href} href={href} prefetch={false} className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm font-medium transition-colors hover:border-primary/50 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon aria-hidden="true" className="size-[18px]" /></span>
-                <span className="grow">{title}</span>
-                <ArrowUpRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-              </Link>
-            ))}
-          </div>
-        </section>
+        <>
+          {role === "admin" && (
+            <div className="mb-5"><EquipmentManagementList key="admin-summary" mode="admin-summary" /></div>
+          )}
+          <section className="overflow-hidden rounded-2xl border bg-card">
+            <div className="border-b bg-gradient-to-br from-secondary/65 to-card px-5 py-7 sm:px-7 sm:py-9">
+              <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">Welcome, {session.user.name}</h2>
+              {role === "customer" && (
+                <Button
+                  className="mt-4"
+                  size="lg"
+                  nativeButton={false}
+                  render={<Link href="/equipment" />}
+                >
+                  Browse equipment
+                  <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
+                </Button>
+              )}
+            </div>
+            <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-7 xl:grid-cols-3">
+              {sections.map(({ href, title, icon: Icon }) => (
+                <Link key={href} href={href} prefetch={false} className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm font-medium transition-colors hover:border-primary/50 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon aria-hidden="true" className="size-[18px]" /></span>
+                  <span className="grow">{title}</span>
+                  <ArrowUpRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+                </Link>
+              ))}
+            </div>
+          </section>
+        </>
       ) : role === "customer" && section === "rentals" ? (
         <CustomerRentals />
       ) : role === "owner" && section === "add-equipment" ? (
         <OwnerEquipmentForm />
       ) : role === "owner" && section === "equipment" ? (
-        <OwnerEquipmentList />
+        <EquipmentManagementList key="owner-equipment" mode="owner" />
       ) : role === "owner" && section === "rentals" ? (
         <section className="rounded-2xl border bg-card p-6 sm:p-8">
           <h2 className="font-heading text-xl font-semibold">Rental history</h2>
           <p className="mt-2 text-sm text-muted-foreground">Rentals for your equipment will appear here when booking opens.</p>
         </section>
+      ) : role === "admin" && section === "equipment" ? (
+        <EquipmentManagementList key="admin-equipment" mode="admin" />
+      ) : role === "admin" && (section === "users" || section === "rentals") ? (
+        <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
+          {section === "users"
+            ? "User management will be available when the account administration API is ready."
+            : "Rental activity will appear here when booking opens."}
+        </div>
       ) : (
         <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
           This section is coming soon.
