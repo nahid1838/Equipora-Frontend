@@ -11,6 +11,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell"
 import CustomerRentals from "@/components/dashboard/CustomerRentals"
 import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
 import EquipmentManagementList from "@/components/dashboard/EquipmentManagementList"
+import ProfileSettings from "@/components/dashboard/ProfileSettings"
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 
@@ -98,6 +99,14 @@ async function DashboardContent({ params }: PageProps) {
             </div>
           </section>
         </>
+      ) : section === "profile" ? (
+        <ProfileSettings
+          key={session.user.id}
+          name={session.user.name}
+          email={session.user.email}
+          image={session.user.image ?? ""}
+          role={roleLabel}
+        />
       ) : role === "customer" && section === "rentals" ? (
         <CustomerRentals />
       ) : role === "owner" && section === "add-equipment" ? (
