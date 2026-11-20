@@ -8,6 +8,8 @@ import {
   PackagePlus, UserRound, UsersRound,
 } from "lucide-react"
 import DashboardShell from "@/components/dashboard/DashboardShell"
+import CustomerRentals from "@/components/dashboard/CustomerRentals"
+import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Dashboard | Equipora" }
@@ -67,6 +69,17 @@ async function DashboardContent({ params }: PageProps) {
         <section className="overflow-hidden rounded-2xl border bg-card">
           <div className="border-b bg-gradient-to-br from-secondary/65 to-card px-5 py-7 sm:px-7 sm:py-9">
             <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">Welcome, {session.user.name}</h2>
+            {role === "customer" && (
+              <Button
+                className="mt-4"
+                size="lg"
+                nativeButton={false}
+                render={<Link href="/equipment" />}
+              >
+                Browse equipment
+                <ArrowUpRight aria-hidden="true" data-icon="inline-end" />
+              </Button>
+            )}
           </div>
           <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-7 xl:grid-cols-3">
             {sections.map(({ href, title, icon: Icon }) => (
@@ -78,6 +91,8 @@ async function DashboardContent({ params }: PageProps) {
             ))}
           </div>
         </section>
+      ) : role === "customer" && section === "rentals" ? (
+        <CustomerRentals />
       ) : (
         <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
           This section is coming soon.
