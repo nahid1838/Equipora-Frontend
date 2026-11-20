@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Boxes, ImageOff, MapPin } from "lucide-react"
 import { cn } from "cn"
+import { Button } from "@/components/ui/button"
 import type { Equipment } from "@/types/equipment"
 
 // Shows the rental period next to the price, e.g. "$15 / day".
@@ -91,6 +93,15 @@ const EquipmentCard = ({ equipment, className }: EquipmentCardProps) => {
             </p>
           )}
         </div>
+
+        <Button
+          variant="outline"
+          className="w-full"
+          nativeButton={false}
+          render={<Link href={`/equipment/${equipment._id}`} />}
+        >
+          View Details
+        </Button>
       </div>
     </article>
   )
