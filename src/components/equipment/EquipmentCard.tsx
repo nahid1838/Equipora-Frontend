@@ -1,26 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Boxes, ImageOff, MapPin } from "lucide-react"
 import { cn } from "cn"
 import { Button } from "@/components/ui/button"
-import type { Equipment } from "@/types/equipment"
+import type { EquipmentCardItem } from "@/types/equipment"
 
 // Shows the rental period next to the price, e.g. "$15 / day".
-const RENTAL_PERIODS: Record<Equipment["rentalType"], string> = {
+const RENTAL_PERIODS: Record<EquipmentCardItem["rentalType"], string> = {
   daily: "day",
   weekly: "week",
   monthly: "month",
 }
 
 type EquipmentCardProps = {
-  equipment: Equipment
+  equipment: EquipmentCardItem
   className?: string
+  action?: ReactNode
 }
 
-const EquipmentCard = ({ equipment, className }: EquipmentCardProps) => {
+const EquipmentCard = ({ equipment, className, action }: EquipmentCardProps) => {
   const [imageFailed, setImageFailed] = useState(false)
   const isAvailable = equipment.availableQuantity > 0
 
@@ -102,6 +103,7 @@ const EquipmentCard = ({ equipment, className }: EquipmentCardProps) => {
         >
           View Details
         </Button>
+        {action}
       </div>
     </article>
   )

@@ -44,6 +44,10 @@ export type Equipment = {
   updatedAt: string
 }
 
+export type EquipmentCardItem = Pick<Equipment,
+  "_id" | "name" | "category" | "location" | "price" | "rentalType" | "availableQuantity" | "imageUrl"
+>
+
 // Fields an owner sends when creating equipment.
 // Server-controlled fields (status, owner info, timestamps) are excluded.
 export type CreateEquipmentPayload = {

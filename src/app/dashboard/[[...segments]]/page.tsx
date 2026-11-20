@@ -9,6 +9,7 @@ import {
 } from "lucide-react"
 import DashboardShell from "@/components/dashboard/DashboardShell"
 import CustomerRentals from "@/components/dashboard/CustomerRentals"
+import CustomerFavorites from "@/components/dashboard/CustomerFavorites"
 import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
 import EquipmentManagementList from "@/components/dashboard/EquipmentManagementList"
 import ProfileSettings from "@/components/dashboard/ProfileSettings"
@@ -20,7 +21,7 @@ export const metadata: Metadata = { title: "Dashboard | Equipora" }
 const navigation = {
   customer: [
     { slug: "rentals", title: "My rentals", icon: CalendarDays },
-    { slug: "favorites", title: "Favorites", icon: Heart },
+    { slug: "favorites", title: "My Favorites", icon: Heart },
   ],
   owner: [
     { slug: "add-equipment", title: "Add equipment", icon: PackagePlus },
@@ -109,6 +110,8 @@ async function DashboardContent({ params }: PageProps) {
         />
       ) : role === "customer" && section === "rentals" ? (
         <CustomerRentals />
+      ) : role === "customer" && section === "favorites" ? (
+        <CustomerFavorites key={session.user.id} />
       ) : role === "owner" && section === "add-equipment" ? (
         <OwnerEquipmentForm />
       ) : role === "owner" && section === "equipment" ? (

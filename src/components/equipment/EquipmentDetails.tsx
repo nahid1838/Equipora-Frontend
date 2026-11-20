@@ -11,6 +11,7 @@ import { getEquipmentDetails } from "@/lib/api/equipment"
 import { ApiError } from "@/lib/api/errors"
 import type { Equipment } from "@/types/equipment"
 import { EquipmentErrorState } from "./EquipmentStates"
+import FavoriteButton from "./FavoriteButton"
 
 const rentalPeriods = { daily: "day", weekly: "week", monthly: "month" }
 
@@ -24,7 +25,7 @@ export function EquipmentDetailsLoading() {
   )
 }
 
-function DetailsView({ equipment }: { equipment: Equipment }) {
+function DetailsView({ equipment, signInUrl }: { equipment: Equipment; signInUrl?: string }) {
   const [imageFailed, setImageFailed] = useState(false)
   const { name, category, location, price, rentalType, availableQuantity } = equipment
   const specifications = [
@@ -74,6 +75,8 @@ function DetailsView({ equipment }: { equipment: Equipment }) {
           </p>
         </div>
 
+        {signInUrl && <FavoriteButton equipment={equipment} signInUrl={signInUrl} />}
+
         <section>
           <h2 className="text-lg font-semibold">Description</h2>
           <p className="mt-2 whitespace-pre-wrap break-words text-muted-foreground">{equipment.description}</p>
@@ -106,7 +109,7 @@ function DetailsView({ equipment }: { equipment: Equipment }) {
   )
 }
 
-function DetailsRequest({ id, signInUrl }: { id: string; signInUrl: string }) {
+function DetailsRequest({ id, signInUrl, customer }: { id: string; signInUrl: string; customer: boolean }) {
   const [result, setResult] = useState<Equipment | ApiError | null>(null)
   const [attempt, setAttempt] = useState(0)
 
@@ -124,7 +127,9 @@ function DetailsRequest({ id, signInUrl }: { id: string; signInUrl: string }) {
   }, [id, attempt])
 
   if (!result) return <EquipmentDetailsLoading />
-  if (!(result instanceof ApiError)) return <DetailsView equipment={result} />
+  if (!(result instanceof ApiError)) {
+    return <DetailsView equipment={result} signInUrl={customer && result.status === "approved" ? signInUrl : undefined} />
+  }
   if (result.status === 401) redirect(signInUrl)
 
   if (result.status === 400 || result.status === 404) {
@@ -160,7 +165,12 @@ export default function EquipmentDetails({ id }: { id: string }) {
       ) : error ? (
         <EquipmentErrorState message="Could not check your session." onRetry={() => void refetch()} />
       ) : session ? (
-        <DetailsRequest key={`${session.user.id}:${id}`} id={id} signInUrl={signInUrl} />
+        <DetailsRequest
+          key={`${session.user.id}:${id}`}
+          id={id}
+          signInUrl={signInUrl}
+          customer={(session.user.role ?? "customer") === "customer"}
+        />
       ) : null}
     </div>
   )
