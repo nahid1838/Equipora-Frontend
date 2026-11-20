@@ -11,7 +11,10 @@ const nextConfig: NextConfig = {
   images: {
     // Allow external image URLs (sample avatars for now; imgbb is used
     // for equipment image uploads in later phases)
-    remotePatterns: [{ protocol: "https", hostname: "randomuser.me" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "randomuser.me" },
+      { protocol: "https", hostname: "i.ibb.co" },
+    ],
   },
   turbopack: {
     rules: {
