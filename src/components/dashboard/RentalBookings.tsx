@@ -9,12 +9,16 @@ import { EquipmentErrorState } from "@/components/equipment/EquipmentStates"
 import { getBookings, type Booking, type BookingRole } from "@/lib/api/bookings"
 import { ApiError } from "@/lib/api/errors"
 import type { ApiSuccess } from "@/types/api"
+import ReviewForm from "./ReviewForm"
 
 const columns = ["Equipment Name", "Rental Start Date", "Rental End Date", "Booking Date", "Total Amount", "Payment Status", "Booking Status"]
 const date = new Intl.DateTimeFormat("en-GB", { timeZone: "UTC", dateStyle: "medium" })
 const dateLabel = (value: string) => date.format(new Date(value))
 
-function RentalRow({ booking, role }: { booking: Booking; role: BookingRole }) {
+function RentalRow({ booking, role, onReviewChange }: { booking: Booking; role: BookingRole; onReviewChange: () => void }) {
+  const [writingReview, setWritingReview] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const reviewStatus = submitted ? "pending" : booking.reviewStatus
   return (
     <tr>
       <th scope="row" className="min-w-48 px-4 py-3 align-top">
@@ -28,6 +32,13 @@ function RentalRow({ booking, role }: { booking: Booking; role: BookingRole }) {
             {booking.notes && <div><dt className="inline font-medium">Notes </dt><dd className="inline">{booking.notes}</dd></div>}
           </dl>
         </details>
+        {role === "customer" && reviewStatus && <p role="status" className="mt-2 text-xs font-medium text-muted-foreground">Review {reviewStatus}</p>}
+        {role === "customer" && !reviewStatus && booking.canReview && (
+          writingReview ? <ReviewForm bookingId={booking._id} onClose={() => setWritingReview(false)} onConflict={onReviewChange} onSubmitted={() => {
+            setWritingReview(false)
+            setSubmitted(true)
+          }} /> : <Button type="button" variant="outline" size="sm" className="mt-2" onClick={() => setWritingReview(true)}>Write a review</Button>
+        )}
       </th>
       {role !== "customer" && <td className="min-w-36 px-4 py-3 align-top">{booking.customerName}</td>}
       {role === "admin" && <td className="min-w-36 px-4 py-3 align-top">{booking.ownerName}</td>}
@@ -88,7 +99,10 @@ export default function RentalBookings({ role }: { role: BookingRole }) {
             <thead className="border-b bg-muted/50">
               <tr>{headers.map((column) => <th key={column} scope="col" className="px-4 py-3 font-medium whitespace-nowrap">{column}</th>)}</tr>
             </thead>
-            <tbody className="divide-y">{result.data.map((booking) => <RentalRow key={booking._id} booking={booking} role={role} />)}</tbody>
+            <tbody className="divide-y">{result.data.map((booking) => <RentalRow key={booking._id} booking={booking} role={role} onReviewChange={() => {
+              setResult(null)
+              setAttempt((value) => value + 1)
+            }} />)}</tbody>
           </table>
         </div>
       )}

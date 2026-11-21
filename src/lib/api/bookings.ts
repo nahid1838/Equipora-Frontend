@@ -1,5 +1,6 @@
 import { apiRequest, apiRequestList } from "./client"
 import { ApiError } from "./errors"
+import type { ReviewStatus } from "@/lib/reviews"
 import type { RentalType } from "@/types/equipment"
 
 type RentalPeriod = { equipmentId: string; startDate: string; endDate: string; quantity: number }
@@ -19,6 +20,8 @@ export type Booking = Quote & {
   rentalType: RentalType
   paymentStatus: "paid"
   bookingStatus: "confirmed"
+  canReview?: boolean
+  reviewStatus?: ReviewStatus | null
   contactNumber: string
   deliveryAddress: string
   notes: string

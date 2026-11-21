@@ -11,6 +11,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell"
 import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics"
 import AdminUsers from "@/components/dashboard/AdminUsers"
 import AdminOwnerApplications from "@/components/dashboard/AdminOwnerApplications"
+import AdminReviews from "@/components/dashboard/AdminReviews"
 import BecomeOwner from "@/components/dashboard/BecomeOwner"
 import RentalBookings from "@/components/dashboard/RentalBookings"
 import CustomerFavorites from "@/components/dashboard/CustomerFavorites"
@@ -36,6 +37,7 @@ const navigation = {
   admin: [
     { slug: "users", title: "All users", icon: UsersRound },
     { slug: "owner-applications", title: "Owner Applications", icon: ClipboardList },
+    { slug: "reviews", title: "Customer Reviews", icon: ClipboardList },
     { slug: "equipment", title: "All equipment", icon: Boxes },
     { slug: "rentals", title: "All rentals", icon: ClipboardList },
   ],
@@ -132,6 +134,8 @@ async function DashboardContent({ params }: PageProps) {
         <BecomeOwner key={session.user.id} />
       ) : role === "admin" && section === "owner-applications" ? (
         <AdminOwnerApplications key={session.user.id} />
+      ) : role === "admin" && section === "reviews" ? (
+        <AdminReviews key={session.user.id} />
       ) : (
         <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
           This section is coming soon.
