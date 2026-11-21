@@ -4,8 +4,7 @@ import { inferAdditionalFields, jwtClient } from "better-auth/client/plugins";
 import type { auth } from "@/lib/auth";
 
 export const authClient = createAuthClient({
-  /** The base URL of the server (optional if you're using the same domain) */
-  baseURL: process.env.BETTER_AUTH_URL as string,
+  // Better Auth is served on the same origin as the Next.js client.
   plugins: [
     // Adds authClient.token() so we can get a JWT for the Express API
     jwtClient(),
