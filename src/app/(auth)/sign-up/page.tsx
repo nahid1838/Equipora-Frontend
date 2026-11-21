@@ -49,6 +49,7 @@ const SignUpPage = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (isLoading) return;
 
     if (!validateForm()) {
       toast.error("Please fix the highlighted fields.");
@@ -56,22 +57,25 @@ const SignUpPage = () => {
     }
 
     setIsLoading(true);
-    const { error } = await authClient.signUp.email({
-      name,
-      email,
-      password,
-      image: image.trim() || undefined,
-    });
-    setIsLoading(false);
-
-    if (error) {
-      toast.error(error.message || "Could not create your account.");
-      return;
+    try {
+      const { error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        image: image.trim() || undefined,
+      });
+      if (error) {
+        toast.error("Could not create your account. Check your information or sign in if you already have an account.");
+        return;
+      }
+      toast.success("Account created successfully! Welcome to Equipora.");
+      router.push("/");
+      router.refresh();
+    } catch {
+      toast.error("Could not reach the registration service. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.success("Account created successfully! Welcome to Equipora.");
-    router.push("/");
-    router.refresh();
   };
 
   return (
@@ -186,7 +190,7 @@ const SignUpPage = () => {
       </form>
 
       <div className="mt-6">
-        <SocialButtons onSuccess={() => {}} />
+        <SocialButtons />
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

@@ -12,6 +12,7 @@ import { ApiError } from "@/lib/api/errors"
 import type { Equipment } from "@/types/equipment"
 import { EquipmentErrorState } from "./EquipmentStates"
 import FavoriteButton from "./FavoriteButton"
+import BookingModal from "./BookingModal"
 
 const rentalPeriods = { daily: "day", weekly: "week", monthly: "month" }
 
@@ -19,8 +20,8 @@ export function EquipmentDetailsLoading() {
   return (
     <div role="status" className="grid gap-6 lg:grid-cols-2">
       <span className="sr-only">Loading equipment details…</span>
-      <div className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
-      <div className="min-h-48 animate-pulse rounded-2xl bg-muted" />
+      <div className="aspect-[4/3] rounded-2xl bg-muted motion-safe:animate-pulse" />
+      <div className="min-h-48 rounded-2xl bg-muted motion-safe:animate-pulse" />
     </div>
   )
 }
@@ -75,7 +76,12 @@ function DetailsView({ equipment, signInUrl }: { equipment: Equipment; signInUrl
           </p>
         </div>
 
-        {signInUrl && <FavoriteButton equipment={equipment} signInUrl={signInUrl} />}
+        {signInUrl && (
+          <div className="flex flex-wrap gap-2">
+            <BookingModal equipmentId={equipment._id} stock={availableQuantity} signInUrl={signInUrl} />
+            <FavoriteButton equipment={equipment} signInUrl={signInUrl} />
+          </div>
+        )}
 
         <section>
           <h2 className="text-lg font-semibold">Description</h2>
@@ -134,10 +140,11 @@ function DetailsRequest({ id, signInUrl, customer }: { id: string; signInUrl: st
 
   if (result.status === 400 || result.status === 404) {
     return (
-      <div className="rounded-2xl border bg-card p-8 text-center" role="status">
+      <section className="rounded-2xl border bg-card p-6 text-center sm:p-8">
         <h1 className="text-xl font-semibold">Equipment not found</h1>
-        <p className="mt-2 text-muted-foreground">{result.message}</p>
-      </div>
+        <p role="status" className="mt-2 text-muted-foreground">This listing may have been removed or the link may be incorrect.</p>
+        <Button className="mt-5" variant="outline" nativeButton={false} render={<Link href="/equipment" />}>Browse equipment</Button>
+      </section>
     )
   }
 

@@ -8,7 +8,11 @@ import {
   PackagePlus, UserRound, UsersRound,
 } from "lucide-react"
 import DashboardShell from "@/components/dashboard/DashboardShell"
-import CustomerRentals from "@/components/dashboard/CustomerRentals"
+import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics"
+import AdminUsers from "@/components/dashboard/AdminUsers"
+import AdminOwnerApplications from "@/components/dashboard/AdminOwnerApplications"
+import BecomeOwner from "@/components/dashboard/BecomeOwner"
+import RentalBookings from "@/components/dashboard/RentalBookings"
 import CustomerFavorites from "@/components/dashboard/CustomerFavorites"
 import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
 import EquipmentManagementList from "@/components/dashboard/EquipmentManagementList"
@@ -22,6 +26,7 @@ const navigation = {
   customer: [
     { slug: "rentals", title: "My rentals", icon: CalendarDays },
     { slug: "favorites", title: "My Favorites", icon: Heart },
+    { slug: "become-owner", title: "Become an Owner", icon: PackagePlus },
   ],
   owner: [
     { slug: "add-equipment", title: "Add equipment", icon: PackagePlus },
@@ -30,6 +35,7 @@ const navigation = {
   ],
   admin: [
     { slug: "users", title: "All users", icon: UsersRound },
+    { slug: "owner-applications", title: "Owner Applications", icon: ClipboardList },
     { slug: "equipment", title: "All equipment", icon: Boxes },
     { slug: "rentals", title: "All rentals", icon: ClipboardList },
   ],
@@ -71,8 +77,8 @@ async function DashboardContent({ params }: PageProps) {
     <DashboardShell role={roleLabel} user={session.user} active={active} links={[overview, ...sections]}>
       {active === overview ? (
         <>
-          {role === "admin" && (
-            <div className="mb-5"><EquipmentManagementList key="admin-summary" mode="admin-summary" /></div>
+          {role !== "customer" && (
+            <div className="mb-5"><DashboardAnalytics key={`${session.user.id}:${role}`} role={role} /></div>
           )}
           <section className="overflow-hidden rounded-2xl border bg-card">
             <div className="border-b bg-gradient-to-br from-secondary/65 to-card px-5 py-7 sm:px-7 sm:py-9">
@@ -106,29 +112,26 @@ async function DashboardContent({ params }: PageProps) {
           name={session.user.name}
           email={session.user.email}
           image={session.user.image ?? ""}
+          phoneNumber={session.user.phoneNumber ?? ""}
+          address={session.user.address ?? ""}
           role={roleLabel}
         />
-      ) : role === "customer" && section === "rentals" ? (
-        <CustomerRentals />
+      ) : section === "rentals" ? (
+        <RentalBookings key={`${session.user.id}:${role}`} role={role} />
       ) : role === "customer" && section === "favorites" ? (
         <CustomerFavorites key={session.user.id} />
       ) : role === "owner" && section === "add-equipment" ? (
         <OwnerEquipmentForm />
       ) : role === "owner" && section === "equipment" ? (
         <EquipmentManagementList key="owner-equipment" mode="owner" />
-      ) : role === "owner" && section === "rentals" ? (
-        <section className="rounded-2xl border bg-card p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-semibold">Rental history</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Rentals for your equipment will appear here when booking opens.</p>
-        </section>
       ) : role === "admin" && section === "equipment" ? (
         <EquipmentManagementList key="admin-equipment" mode="admin" />
-      ) : role === "admin" && (section === "users" || section === "rentals") ? (
-        <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
-          {section === "users"
-            ? "User management will be available when the account administration API is ready."
-            : "Rental activity will appear here when booking opens."}
-        </div>
+      ) : role === "admin" && section === "users" ? (
+        <AdminUsers key={session.user.id} viewerId={session.user.id} viewerEmail={session.user.email} />
+      ) : role === "customer" && section === "become-owner" ? (
+        <BecomeOwner key={session.user.id} />
+      ) : role === "admin" && section === "owner-applications" ? (
+        <AdminOwnerApplications key={session.user.id} />
       ) : (
         <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground sm:p-8">
           This section is coming soon.
@@ -140,7 +143,13 @@ async function DashboardContent({ params }: PageProps) {
 
 export default function DashboardPage({ params }: PageProps) {
   return (
-    <Suspense fallback={<p role="status" className="mx-auto max-w-7xl p-8 text-muted-foreground">Loading dashboard…</p>}>
+    <Suspense fallback={
+      <div role="status" className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6">
+        <span className="sr-only">Loading dashboard…</span>
+        <div aria-hidden="true" className="h-8 w-44 rounded bg-muted motion-safe:animate-pulse" />
+        <div aria-hidden="true" className="h-40 rounded-2xl border bg-card motion-safe:animate-pulse" />
+      </div>
+    }>
       <DashboardContent params={params} />
     </Suspense>
   )

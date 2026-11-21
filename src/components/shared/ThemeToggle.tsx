@@ -1,24 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 // localStorage key where the user's theme choice is saved
 const THEME_KEY = "equipora-theme";
 
-export default function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
-  // Avoid hydration mismatch: only show the real state after mounting
-  const [mounted, setMounted] = useState(false);
+function subscribe(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  return () => observer.disconnect();
+}
 
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains("dark"));
-    setMounted(true);
-  }, []);
+const readTheme = () => document.documentElement.classList.contains("dark");
+const readServerTheme = () => false;
+
+export default function ThemeToggle() {
+  const isDark = useSyncExternalStore(subscribe, readTheme, readServerTheme);
 
   const toggleTheme = () => {
     const nextIsDark = !isDark;
-    setIsDark(nextIsDark);
 
     // The ".dark" class on <html> is what activates dark styles in globals.css
     document.documentElement.classList.toggle("dark", nextIsDark);
@@ -35,7 +36,7 @@ export default function ThemeToggle() {
       {/* Sliding knob */}
       <span
         className={`absolute h-6 w-6 rounded-full bg-primary transition-transform ${
-          mounted && isDark ? "translate-x-6" : "translate-x-0"
+          isDark ? "translate-x-6" : "translate-x-0"
         }`}
       />
       <Sun className="relative z-10 ml-auto h-4 w-4 text-muted-foreground" />

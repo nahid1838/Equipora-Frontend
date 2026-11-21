@@ -2,6 +2,26 @@ import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { jwt } from "better-auth/plugins";
+import { validateAddress, validatePhoneNumber } from "./profile-fields";
+
+function optionalProfileField(validate: (value: unknown) => string | undefined) {
+  return {
+    type: "string" as const,
+    required: false as const,
+    validator: {
+      input: {
+        "~standard": {
+          version: 1 as const,
+          vendor: "equipora",
+          validate(value: unknown) {
+            const message = validate(value);
+            return message ? { issues: [{ message }] } : { value: (value as string).trim() };
+          },
+        },
+      },
+    },
+  };
+}
 
 const client = new MongoClient(process.env.MONGODB_URI as string);
 const db = client.db("equiporadb");
@@ -26,6 +46,8 @@ export const auth = betterAuth({
         defaultValue: "customer",
         input: false,
       },
+      phoneNumber: optionalProfileField(validatePhoneNumber),
+      address: optionalProfileField(validateAddress),
     },
   },
   socialProviders: {

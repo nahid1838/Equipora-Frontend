@@ -58,7 +58,7 @@ export function useFavorites() {
       if (error instanceof ApiError && error.status === 401) {
         setResult(error)
       } else {
-        toast.error(error instanceof Error ? error.message : "Could not update your favorites.")
+        toast.error(error instanceof ApiError ? error.message : "Could not update your favorites.")
       }
     } finally {
       setPendingId(null)

@@ -1,8 +1,8 @@
 import type { EquipmentCardItem } from "@/types/equipment"
-import { apiRequest, apiRequestMessage } from "./client"
+import { apiRequestList, apiRequestMessage } from "./client"
 
 export async function getFavorites(signal?: AbortSignal): Promise<EquipmentCardItem[]> {
-  const { data } = await apiRequest<EquipmentCardItem[]>("/api/favorites", { auth: "protected", signal })
+  const { data } = await apiRequestList<EquipmentCardItem>("/api/favorites", { auth: "protected", signal })
   return data
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
@@ -33,18 +34,23 @@ const GitHubIcon = () => (
 );
 
 type SocialButtonsProps = {
-  onSuccess: () => void;
   callbackURL?: string;
 };
 
 // Google + GitHub buttons shared by the Sign In and Sign Up pages
-const SocialButtons = ({ onSuccess, callbackURL = "/" }: SocialButtonsProps) => {
+const SocialButtons = ({ callbackURL = "/" }: SocialButtonsProps) => {
+  const [pendingProvider, setPendingProvider] = useState<"google" | "github" | null>(null);
+
   const handleSocialLogin = async (provider: "google" | "github") => {
+    if (pendingProvider) return;
+    setPendingProvider(provider);
     try {
-      await authClient.signIn.social({ provider, callbackURL });
-      onSuccess();
+      const { error } = await authClient.signIn.social({ provider, callbackURL });
+      if (error) toast.error("Could not start social sign-in. Please try again.");
     } catch {
-      toast.error("Social login failed. Please try again.");
+      toast.error("Could not start social sign-in. Please try again.");
+    } finally {
+      setPendingProvider(null);
     }
   };
 
@@ -60,18 +66,20 @@ const SocialButtons = ({ onSuccess, callbackURL = "/" }: SocialButtonsProps) => 
         <Button
           type="button"
           variant="outline"
+          disabled={pendingProvider !== null}
           onClick={() => handleSocialLogin("google")}
         >
           <GoogleIcon />
-          Google
+          {pendingProvider === "google" ? "Opening…" : "Google"}
         </Button>
         <Button
           type="button"
           variant="outline"
+          disabled={pendingProvider !== null}
           onClick={() => handleSocialLogin("github")}
         >
           <GitHubIcon />
-          GitHub
+          {pendingProvider === "github" ? "Opening…" : "GitHub"}
         </Button>
       </div>
     </>

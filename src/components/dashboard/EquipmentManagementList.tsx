@@ -6,6 +6,7 @@ import { Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { EquipmentErrorState } from "@/components/equipment/EquipmentStates"
+import TableSkeleton from "@/components/shared/TableSkeleton"
 import { deleteEquipment, getAdminEquipment, getOwnedEquipment, moderateEquipment } from "@/lib/api/equipment"
 import { ApiError } from "@/lib/api/errors"
 import { EQUIPMENT_STATUSES, type Equipment, type EquipmentStatus } from "@/types/equipment"
@@ -19,8 +20,8 @@ const statusClass = {
 
 type ListState = { items: Equipment[] } | { error: string } | null
 
-export default function EquipmentManagementList({ mode }: { mode: "owner" | "admin" | "admin-summary" }) {
-  const admin = mode !== "owner"
+export default function EquipmentManagementList({ mode }: { mode: "owner" | "admin" }) {
+  const admin = mode === "admin"
   const [result, setResult] = useState<ListState>(null)
   const [attempt, setAttempt] = useState(0)
   const [editing, setEditing] = useState<Equipment | null>(null)
@@ -43,7 +44,7 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
       })
       .catch((error: unknown) => {
         if (!controller.signal.aborted) {
-          setResult({ error: error instanceof Error ? error.message : "Could not load equipment." })
+          setResult({ error: error instanceof ApiError ? error.message : "Could not load equipment." })
         }
       })
     return () => controller.abort()
@@ -54,31 +55,13 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
   }, [confirming])
 
   if (!result) {
-    return <p role="status" className="rounded-2xl border bg-card p-6 text-muted-foreground">Loading equipment…</p>
+    return <TableSkeleton label="Loading equipment listings…" />
   }
   if ("error" in result) {
     return <EquipmentErrorState message={result.error} onRetry={() => {
       setResult(null)
       setAttempt((current) => current + 1)
     }} />
-  }
-
-  if (mode === "admin-summary") {
-    const counts = [
-      { label: "Total equipment", value: result.items.length },
-      { label: "Pending approvals", value: result.items.filter((item) => item.status === "pending").length },
-    ]
-
-    return (
-      <dl className="grid gap-3 sm:grid-cols-2">
-        {counts.map(({ label, value }) => (
-          <div key={label} className="rounded-2xl border bg-card p-5 sm:p-6">
-            <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-            <dd className="mt-2 font-heading text-3xl font-bold tabular-nums">{value}</dd>
-          </div>
-        ))}
-      </dl>
-    )
   }
 
   function replaceListing(updated: Equipment) {
@@ -108,7 +91,7 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
         setConfirming(null)
         toast.info("This listing has already been removed.")
       } else {
-        setDeleteError(error instanceof Error ? error.message : "Could not delete this equipment.")
+        setDeleteError(error instanceof ApiError ? error.message : "Could not delete this equipment.")
       }
     } finally {
       deleting.current = false
@@ -126,7 +109,7 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
       toast.success(status === "approved" ? "Equipment approved." : "Equipment rejected.")
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) removeFromList(item._id)
-      setModerationError(error instanceof Error ? error.message : "Could not change the approval status.")
+      setModerationError(error instanceof ApiError ? error.message : "Could not change the approval status.")
     } finally {
       moderationPending.current = false
       setModerating(false)
@@ -182,7 +165,11 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
       )}
 
       {items.length === 0 ? (
-        <p className="border-t p-5 text-sm text-muted-foreground sm:px-7">{admin ? "No equipment matches this view." : "Your equipment listings will appear here."}</p>
+        <div className="border-t px-5 py-10 text-center">
+          <h3 className="font-heading font-semibold">{statusFilter ? "No listings match this status" : "No equipment listed yet"}</h3>
+          <p className="mt-2 text-sm text-muted-foreground">{statusFilter ? "Choose another status or clear the filter." : admin ? "New equipment listings will appear here for review." : "Use Add equipment to submit your first listing."}</p>
+          {statusFilter && <Button type="button" variant="outline" className="mt-4" onClick={() => setStatusFilter("")}>Clear status filter</Button>}
+        </div>
       ) : (
         <div role="region" aria-labelledby="equipment-listings" tabIndex={0} className="overflow-x-auto border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
           <table className="w-full text-left text-sm">

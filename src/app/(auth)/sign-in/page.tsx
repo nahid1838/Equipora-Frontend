@@ -18,7 +18,8 @@ const SignInForm = () => {
   const destination =
     returnTo &&
     (/^\/equipment\/(?:[\w.!'()*~-]|%[\da-f]{2})+$/i.test(returnTo) ||
-      /^\/dashboard(?:\/(?:customer|owner|admin)(?:\/[a-z-]+)?)?$/.test(returnTo)) &&
+      /^\/dashboard(?:\/(?:customer|owner|admin)(?:\/[a-z-]+)?)?$/.test(returnTo) ||
+      /^\/booking\/payment\/[\da-f]{24}$/i.test(returnTo)) &&
     new URL(returnTo, "https://equipora.invalid").pathname === returnTo
       ? returnTo
       : "/";
@@ -43,6 +44,7 @@ const SignInForm = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (isLoading) return;
 
     if (!validateForm()) {
       toast.error("Please fix the highlighted fields.");
@@ -50,17 +52,20 @@ const SignInForm = () => {
     }
 
     setIsLoading(true);
-    const { error } = await authClient.signIn.email({ email, password });
-    setIsLoading(false);
-
-    if (error) {
-      toast.error(error.message || "Invalid email or password.");
-      return;
+    try {
+      const { error } = await authClient.signIn.email({ email, password });
+      if (error) {
+        toast.error(error.status === 401 ? "Invalid email or password." : "Could not sign in. Please try again.");
+        return;
+      }
+      toast.success("Signed in successfully! Welcome back.");
+      router.push(destination);
+      router.refresh();
+    } catch {
+      toast.error("Could not reach the sign-in service. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-
-    toast.success("Signed in successfully! Welcome back.");
-    router.push(destination);
-    router.refresh();
   };
 
   return (
@@ -120,7 +125,7 @@ const SignInForm = () => {
       </form>
 
       <div className="mt-6">
-        <SocialButtons onSuccess={() => {}} callbackURL={destination} />
+        <SocialButtons callbackURL={destination} />
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -135,7 +140,14 @@ const SignInForm = () => {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-center" role="status">Loading sign in…</p>}>
+    <Suspense fallback={
+      <AuthLayout title="Welcome Back!" subtitle="Sign in to your account to continue">
+        <div role="status" className="space-y-4">
+          <span className="sr-only">Loading sign in…</span>
+          {[1, 2, 3].map((row) => <div key={row} aria-hidden="true" className="h-10 rounded-lg bg-muted motion-safe:animate-pulse" />)}
+        </div>
+      </AuthLayout>
+    }>
       <SignInForm />
     </Suspense>
   );

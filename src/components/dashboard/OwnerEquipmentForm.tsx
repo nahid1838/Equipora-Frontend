@@ -1,5 +1,6 @@
 "use client"
 
+import { ApiError } from "@/lib/api/errors"
 import { useRef, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -113,7 +114,7 @@ export default function OwnerEquipmentForm({ equipment, onSaved, onCancel }: Pro
         router.push("/dashboard/owner/equipment")
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Could not save this equipment.")
+      setError(error instanceof ApiError ? error.message : "Could not save this equipment.")
     } finally {
       if (!created) {
         saving.current = false
