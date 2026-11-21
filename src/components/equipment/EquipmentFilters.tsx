@@ -132,7 +132,7 @@ const EquipmentFilters = ({
 
         {/* Availability */}
         <label className={labelClassName}>
-          <span>Availability</span>
+          <span>Listing stock</span>
           <select
             value={value.availability}
             onChange={(event) =>
@@ -145,9 +145,9 @@ const EquipmentFilters = ({
             }
             className={selectClassName}
           >
-            <option value="all">All availability</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
+            <option value="all">All listings</option>
+            <option value="available">Has stock</option>
+            <option value="unavailable">No stock</option>
           </select>
         </label>
 

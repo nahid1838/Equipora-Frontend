@@ -7,6 +7,8 @@ import type {
 import { getApiBaseUrl } from "./config"
 import { ApiError } from "./errors"
 
+const REQUEST_TIMEOUT_MS = 15_000
+
 export type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE"
 
 // `auth` is required on purpose:
@@ -73,13 +75,13 @@ function getFallbackMessage(status: number): string {
 
 // Gets a new JWT immediately before a protected request.
 // The token is never stored, cached, or logged.
-async function getFreshAccessToken(): Promise<string> {
+async function getFreshAccessToken(signal: AbortSignal): Promise<string> {
   let result
 
   try {
     // Better Auth 1.7 returns { data: { token }, error } or
     // { data: null, error } — inspected in the installed package.
-    result = await authClient.token()
+    result = await authClient.token({ fetchOptions: { signal } })
   } catch {
     throw new ApiError("Could not reach the sign-in service. Please try again.", { isNetworkError: true })
   }
@@ -149,28 +151,41 @@ async function requestSuccess(
     }
   }
 
-  if (options.auth === "protected") {
-    const token = await getFreshAccessToken()
-    headers.set("Authorization", `Bearer ${token}`)
-  }
-
+  const deadline = AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+  const signal = options.signal ? AbortSignal.any([options.signal, deadline]) : deadline
   let response: Response
+  let parsed: ParsedBody
+  let requestStarted = false
 
   try {
+    signal.throwIfAborted()
+    if (options.auth === "protected") {
+      const token = await getFreshAccessToken(signal)
+      signal.throwIfAborted()
+      headers.set("Authorization", `Bearer ${token}`)
+    }
+    requestStarted = true
     response = await fetch(url, {
       method,
       headers,
       body: bodyText,
-      signal: options.signal,
+      signal,
     })
-  } catch {
+    parsed = await readBody(response)
+    signal.throwIfAborted()
+  } catch (error) {
+    if (deadline.aborted && signal.reason === deadline.reason) {
+      const message = requestStarted && method !== "GET"
+        ? "The request timed out. Check whether it completed before submitting again."
+        : "The request timed out. Please try again."
+      throw new ApiError(message, { isTimeout: true })
+    }
+    if (error instanceof ApiError) throw error
     throw new ApiError(
       "Could not reach the server. Check your connection and try again.",
       { isNetworkError: true }
     )
   }
-
-  const parsed = await readBody(response)
 
   // Keep actionable validation responses and hide service failures.
   if (!response.ok) {

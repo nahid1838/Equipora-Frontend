@@ -3,16 +3,19 @@
 export type ApiErrorOptions = {
   status?: number | null
   isNetworkError?: boolean
+  isTimeout?: boolean
 }
 
 export class ApiError extends Error {
   readonly status: number | null
   readonly isNetworkError: boolean
+  readonly isTimeout: boolean
 
   constructor(message: string, options: ApiErrorOptions = {}) {
     super(message)
     this.name = "ApiError"
     this.status = options.status ?? null
     this.isNetworkError = options.isNetworkError ?? false
+    this.isTimeout = options.isTimeout ?? false
   }
 }

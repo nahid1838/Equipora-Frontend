@@ -6,6 +6,21 @@ import type { RentalType } from "@/types/equipment"
 type RentalPeriod = { equipmentId: string; startDate: string; endDate: string; quantity: number }
 type CheckoutInput = RentalPeriod & { contactNumber: string; deliveryAddress: string; notes: string; requestKey: string }
 type Quote = { totalAmountMinor: number; billableUnits: number; durationDays: number; currency: "usd" }
+type Availability = { availableQuantity: number }
+
+function readAvailability(data: Availability) {
+  if (!data || !Number.isSafeInteger(data.availableQuantity) || data.availableQuantity < 0) {
+    throw new ApiError("Could not read availability. Please try again.")
+  }
+  return data.availableQuantity
+}
+
+export async function getBookingAvailability(body: Omit<RentalPeriod, "quantity">, signal: AbortSignal) {
+  const { data } = await apiRequest<Availability>("/api/bookings/availability", {
+    auth: "protected", method: "POST", body, signal,
+  })
+  return readAvailability(data)
+}
 
 export type Booking = Quote & {
   _id: string
@@ -46,8 +61,8 @@ function validateCheckoutStatus(data: CheckoutStatus): CheckoutStatus {
 }
 
 export async function getBookingQuote(body: RentalPeriod) {
-  const { data } = await apiRequest<Quote>("/api/bookings/quote", { auth: "protected", method: "POST", body })
-  return data
+  const { data } = await apiRequest<Quote & Availability>("/api/bookings/quote", { auth: "protected", method: "POST", body })
+  return { ...data, availableQuantity: readAvailability(data) }
 }
 
 export async function startBookingCheckout(body: CheckoutInput) {

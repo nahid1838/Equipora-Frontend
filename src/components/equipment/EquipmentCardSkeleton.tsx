@@ -2,19 +2,19 @@
 // Its layout mirrors EquipmentCard to avoid a visible jump.
 const EquipmentCardSkeleton = () => {
   return (
-    <div aria-hidden="true" className="overflow-hidden rounded-2xl border bg-card motion-safe:animate-pulse">
-      <div className="aspect-[4/3] w-full bg-muted" />
+    <div aria-hidden="true" className="overflow-hidden rounded-2xl border bg-card shadow-sm motion-safe:animate-pulse">
+      <div className="aspect-[4/3] w-full border-b bg-muted" />
 
-      <div className="space-y-3 p-5">
-        <div className="h-3 w-20 rounded bg-muted" />
+      <div className="space-y-4 p-4 sm:p-5">
+        <div className="h-6 w-24 rounded-md bg-muted" />
         <div className="h-5 w-3/4 rounded bg-muted" />
         <div className="h-4 w-1/2 rounded bg-muted" />
 
-        <div className="flex items-end justify-between gap-3 border-t pt-3">
+        <div className="flex flex-wrap items-end justify-between gap-3 border-t pt-4">
           <div className="h-6 w-24 rounded bg-muted" />
           <div className="h-4 w-16 rounded bg-muted" />
         </div>
-        <div className="h-8 w-full rounded bg-muted" />
+        <div className="h-11 w-full rounded-xl bg-muted" />
       </div>
     </div>
   )
