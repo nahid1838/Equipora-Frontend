@@ -91,7 +91,9 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
         setConfirming(null)
         toast.info("This listing has already been removed.")
       } else {
-        setDeleteError(error instanceof ApiError ? error.message : "Could not delete this equipment.")
+        const message = error instanceof ApiError ? error.message : "Could not delete this equipment."
+        setDeleteError(message)
+        toast.error("Could not delete equipment.", { description: message })
       }
     } finally {
       deleting.current = false
@@ -109,7 +111,9 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
       toast.success(status === "approved" ? "Equipment approved." : "Equipment rejected.")
     } catch (error) {
       if (error instanceof ApiError && error.status === 404) removeFromList(item._id)
-      setModerationError(error instanceof ApiError ? error.message : "Could not change the approval status.")
+      const message = error instanceof ApiError ? error.message : "Could not change the approval status."
+      setModerationError(message)
+      toast.error("Could not change listing approval.", { description: message })
     } finally {
       moderationPending.current = false
       setModerating(false)
@@ -127,7 +131,7 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
   const actionsDisabled = Boolean(confirming) || moderating
 
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card">
+    <section className="overflow-hidden rounded-2xl border bg-card shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3 p-5 sm:px-7">
         <h2 id="equipment-listings" className="font-heading text-xl font-semibold">{admin ? "Equipment listings" : "Your listings"}</h2>
         {admin ? (
@@ -171,7 +175,7 @@ export default function EquipmentManagementList({ mode }: { mode: "owner" | "adm
           {statusFilter && <Button type="button" variant="outline" className="mt-4" onClick={() => setStatusFilter("")}>Clear status filter</Button>}
         </div>
       ) : (
-        <div role="region" aria-labelledby="equipment-listings" tabIndex={0} className="overflow-x-auto border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
+        <div role="region" aria-labelledby="equipment-listings" tabIndex={0} className="dashboard-table border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
           <table className="w-full text-left text-sm">
             <thead className="border-b bg-muted/50">
               <tr>

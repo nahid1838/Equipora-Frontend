@@ -23,7 +23,7 @@ export default function CustomerFavorites() {
   }
   if (result.length === 0) {
     return (
-      <section className="flex flex-col items-center rounded-2xl border bg-card px-6 py-12 text-center">
+      <section className="flex flex-col items-center rounded-2xl border bg-card shadow-sm px-6 py-12 text-center">
         <span className="grid size-12 place-items-center rounded-full bg-secondary text-secondary-foreground">
           <Heart aria-hidden="true" className="size-5" />
         </span>
@@ -39,7 +39,7 @@ export default function CustomerFavorites() {
   return (
     <section className="min-w-0 overflow-hidden rounded-2xl border bg-card" aria-labelledby="saved-equipment-heading">
       <h2 id="saved-equipment-heading" className="p-4 font-heading text-xl font-semibold sm:p-6">Saved equipment</h2>
-      <div role="region" aria-labelledby="saved-equipment-heading" tabIndex={0} className="overflow-x-auto border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
+      <div role="region" aria-labelledby="saved-equipment-heading" tabIndex={0} className="dashboard-table border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
         <table className="w-full min-w-[40rem] text-left text-sm">
           <thead className="border-b bg-muted/50">
             <tr>{["Equipment", "Location", "Rental rate", "Availability", "Actions"].map((label) => <th key={label} scope="col" className="px-4 py-3 font-medium whitespace-nowrap">{label}</th>)}</tr>

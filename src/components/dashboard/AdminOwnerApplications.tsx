@@ -62,7 +62,7 @@ export default function AdminOwnerApplications() {
     <div className="min-w-0 space-y-4">
       <Button variant="outline" type="button" onClick={reload}>Refresh applications</Button>
       {result.data.map((item) => (
-        <article key={item._id} className="space-y-4 rounded-2xl border bg-card p-5 [overflow-wrap:anywhere] sm:p-6">
+        <article key={item._id} className="space-y-4 rounded-2xl border bg-card p-5 shadow-sm [overflow-wrap:anywhere] sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div className="min-w-0">
               <h2 className="font-heading text-lg font-semibold">{item.applicant?.name ?? "Account unavailable"}</h2>
@@ -98,7 +98,7 @@ export default function AdminOwnerApplications() {
           <Button type="button" variant="outline" disabled={page >= (result.pagination?.totalPages ?? 0)} onClick={() => { setResult(null); setPage(page + 1) }}>Next</Button>
         </nav>
       )}
-      <dialog ref={dialog} aria-labelledby="application-review" onClose={() => setDecision(null)} onCancel={(event) => { if (saving) event.preventDefault() }} className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-card p-6 text-card-foreground shadow-xl backdrop:bg-black/50">
+      <dialog ref={dialog} aria-labelledby="application-review" onClose={() => setDecision(null)} onCancel={(event) => { if (saving) event.preventDefault() }} className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-card p-6 text-card-foreground shadow-xl backdrop:bg-background/70 backdrop:backdrop-blur-sm">
         <h2 id="application-review" className="font-heading text-xl font-semibold">{decision?.status === "approved" ? "Approve application?" : "Reject application?"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{decision?.status === "approved" ? "This grants the applicant access to the Owner Dashboard." : "This closes the application. The applicant can apply again."}</p>
         <div className="mt-5 flex flex-wrap gap-2">

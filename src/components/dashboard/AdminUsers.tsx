@@ -75,7 +75,9 @@ export default function AdminUsers({ viewerId, viewerEmail }: { viewerId: string
         dialog.current?.close()
         setResult(error)
       } else {
-        setRoleError(error instanceof ApiError ? error.message : "Could not update the user role.")
+        const message = error instanceof ApiError ? error.message : "Could not update the user role."
+        setRoleError(message)
+        toast.error("Could not update the user role.", { description: message })
       }
     } finally {
       pending.current = false
@@ -84,7 +86,7 @@ export default function AdminUsers({ viewerId, viewerEmail }: { viewerId: string
   }
 
   return (
-    <section className="min-w-0 overflow-hidden rounded-2xl border bg-card" aria-labelledby="users-heading">
+    <section className="min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm" aria-labelledby="users-heading">
       <div className="space-y-4 p-4 sm:p-6">
         <h2 id="users-heading" className="font-heading text-xl font-semibold">User accounts</h2>
         <div className="flex flex-wrap items-end gap-3">
@@ -125,7 +127,7 @@ export default function AdminUsers({ viewerId, viewerEmail }: { viewerId: string
         </div>
       ) : (
         <>
-          <div role="region" aria-labelledby="users-heading" tabIndex={0} className="overflow-x-auto border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
+          <div role="region" aria-labelledby="users-heading" tabIndex={0} className="dashboard-table border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
             <table className="w-full min-w-[38rem] text-left text-sm">
               <thead className="border-b bg-muted/50">
                 <tr>{["Name", "Email", "Role", "Registration date", "Actions"].map((label) => <th key={label} scope="col" className="px-4 py-3 font-medium whitespace-nowrap">{label}</th>)}</tr>
@@ -163,7 +165,7 @@ export default function AdminUsers({ viewerId, viewerEmail }: { viewerId: string
         </>
       )}
 
-      <dialog ref={dialog} aria-labelledby="change-role-title" onCancel={(event) => { if (pending.current) event.preventDefault() }} onClose={() => trigger.current?.focus()} className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-sm overflow-y-auto rounded-2xl border bg-card p-5 text-foreground shadow-xl backdrop:bg-black/50">
+      <dialog ref={dialog} aria-labelledby="change-role-title" onCancel={(event) => { if (pending.current) event.preventDefault() }} onClose={() => trigger.current?.focus()} className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border bg-card p-6 text-foreground shadow-xl backdrop:bg-black/50">
         <form onSubmit={saveRole} className="space-y-4">
           <h3 id="change-role-title" className="font-heading text-xl font-semibold">Change user role</h3>
           {selected && <p className="break-words text-sm text-muted-foreground">{selected.name} · {selected.email}</p>}

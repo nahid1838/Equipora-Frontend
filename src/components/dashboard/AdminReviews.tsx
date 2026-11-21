@@ -57,6 +57,7 @@ export default function AdminReviews() {
         reload()
       } else {
         setError(message)
+        toast.error("Could not moderate the review.", { description: message })
       }
     } finally {
       setSaving(false)
@@ -71,7 +72,7 @@ export default function AdminReviews() {
       <Button type="button" variant="outline" onClick={reload}>Refresh reviews</Button>
       {result.data.length === 0 && <p className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">No pending reviews on this page.</p>}
       {result.data.map((review) => (
-        <article key={review.id} className="space-y-3 rounded-2xl border bg-card p-5 wrap-break-word sm:p-6">
+        <article key={review.id} className="space-y-3 rounded-2xl border bg-card p-5 shadow-sm wrap-break-word sm:p-6">
           <h2 className="font-heading text-lg font-semibold">{review.name}</h2>
           <p className="text-sm text-muted-foreground">{review.equipmentName} · {review.rating} out of 5 stars</p>
           <blockquote className="whitespace-pre-wrap text-sm">{review.comment}</blockquote>
@@ -93,7 +94,7 @@ export default function AdminReviews() {
           <Button type="button" variant="outline" disabled={page >= result.pagination.totalPages} onClick={() => { setResult(null); setPage(page + 1) }}>Next</Button>
         </nav>
       )}
-      <dialog ref={dialog} aria-labelledby="review-decision" onCancel={(event) => { if (saving) event.preventDefault() }} className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-card p-6 text-card-foreground shadow-xl backdrop:bg-black/50">
+      <dialog ref={dialog} aria-labelledby="review-decision" onCancel={(event) => { if (saving) event.preventDefault() }} className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border bg-card p-6 text-card-foreground shadow-xl backdrop:bg-background/70 backdrop:backdrop-blur-sm">
         <h2 id="review-decision" className="font-heading text-xl font-semibold">{decision?.status === "approved" ? "Publish this review?" : "Reject this review?"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{decision?.status === "approved" ? "This review will appear in the public customer reviews." : "This review will remain private."}</p>
         {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}

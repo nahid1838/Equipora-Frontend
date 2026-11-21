@@ -85,7 +85,7 @@ export default function RentalBookings({ role }: { role: BookingRole }) {
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border bg-card" aria-labelledby="rental-history">
+    <section className="overflow-hidden rounded-2xl border bg-card shadow-sm" aria-labelledby="rental-history">
       <header className="flex flex-wrap items-center justify-between gap-3 px-5 py-5 sm:px-7">
         <h2 id="rental-history" className="font-heading text-xl font-semibold">Rental history</h2>
         {role === "customer" && <Button variant="outline" nativeButton={false} render={<Link href="/equipment" />}>Browse equipment</Button>}
@@ -94,7 +94,7 @@ export default function RentalBookings({ role }: { role: BookingRole }) {
         <h3 className="font-heading font-semibold">{page > 1 ? "No rentals on this page" : "No rentals yet"}</h3>
         <p className="mt-2 text-sm text-muted-foreground">{page > 1 ? "Go back to see earlier rentals." : role === "customer" ? "Your confirmed rentals will appear here." : "Confirmed bookings will appear here when equipment is rented."}</p>
       </div> : (
-        <div role="region" aria-labelledby="rental-history" tabIndex={0} className="overflow-x-auto border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
+        <div role="region" aria-labelledby="rental-history" tabIndex={0} className="dashboard-table border-t focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
           <table className="w-full text-left text-sm">
             <thead className="border-b bg-muted/50">
               <tr>{headers.map((column) => <th key={column} scope="col" className="px-4 py-3 font-medium whitespace-nowrap">{column}</th>)}</tr>

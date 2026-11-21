@@ -38,6 +38,7 @@ export default function ReviewForm({ bookingId, onClose, onSubmitted, onConflict
         onConflict()
       } else {
         setError(message)
+        toast.error("Could not submit the review.", { description: message })
       }
     } finally {
       setSaving(false)

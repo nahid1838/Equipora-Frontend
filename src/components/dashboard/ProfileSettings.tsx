@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { toast } from "sonner"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -72,7 +73,9 @@ export default function ProfileSettings({ name, email, image, role, phoneNumber,
         ...(addressChanged ? { address: nextAddress } : {}),
       })
       if (error) {
-        setMessage({ text: "Could not save your profile. Check your connection or sign in again if your session expired.", error: true })
+        const text = "Could not save your profile. Check your connection or sign in again if your session expired."
+        setMessage({ text, error: true })
+        toast.error(text)
         return
       }
 
@@ -83,16 +86,19 @@ export default function ProfileSettings({ name, email, image, role, phoneNumber,
       setDraftAddress(nextAddress)
       setFailedImage(null)
       setMessage({ text: "Profile updated.", error: false })
+      toast.success("Profile updated successfully.")
       router.refresh()
     } catch {
-      setMessage({ text: "Could not save your profile. Please try again.", error: true })
+      const text = "Could not save your profile. Please try again."
+      setMessage({ text, error: true })
+      toast.error(text)
     } finally {
       setIsSaving(false)
     }
   }
 
   return (
-    <section className="max-w-3xl overflow-hidden rounded-2xl border bg-card">
+    <section className="max-w-3xl overflow-hidden rounded-2xl border bg-card shadow-sm">
       <div className="flex items-center gap-4 border-b bg-secondary/35 p-5 sm:p-7">
         <span className="relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-full bg-secondary font-heading text-xl font-semibold text-secondary-foreground">
           {saved.image !== failedImage && isPhotoUrl(saved.image) ? (

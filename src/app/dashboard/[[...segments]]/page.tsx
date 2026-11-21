@@ -8,6 +8,7 @@ import {
   PackagePlus, UserRound, UsersRound,
 } from "lucide-react"
 import DashboardShell from "@/components/dashboard/DashboardShell"
+import DashboardAvatar from "@/components/dashboard/DashboardAvatar"
 import DashboardAnalytics from "@/components/dashboard/DashboardAnalytics"
 import AdminUsers from "@/components/dashboard/AdminUsers"
 import AdminOwnerApplications from "@/components/dashboard/AdminOwnerApplications"
@@ -82,12 +83,16 @@ async function DashboardContent({ params }: PageProps) {
           {role !== "customer" && (
             <div className="mb-5"><DashboardAnalytics key={`${session.user.id}:${role}`} role={role} /></div>
           )}
-          <section className="overflow-hidden rounded-2xl border bg-card">
-            <div className="border-b bg-gradient-to-br from-secondary/65 to-card px-5 py-7 sm:px-7 sm:py-9">
-              <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">Welcome, {session.user.name}</h2>
+          <section className="space-y-5">
+            <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-primary/15 bg-gradient-to-br from-secondary/80 via-card to-card p-5 shadow-sm sm:gap-6 sm:p-8">
+              <DashboardAvatar user={session.user} className="size-14 text-lg sm:size-16" />
+              <div className="min-w-0 flex-1">
+                <h2 className="font-heading text-2xl font-bold tracking-tight wrap-break-word sm:text-3xl">Welcome, {session.user.name}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{role === "customer" ? "Manage your rentals, saved equipment, and account." : role === "owner" ? "Manage your equipment listings and rental activity." : "Review marketplace activity, accounts, and applications."}</p>
+              </div>
               {role === "customer" && (
                 <Button
-                  className="mt-4"
+                  className="w-full sm:w-auto"
                   size="lg"
                   nativeButton={false}
                   render={<Link href="/equipment" />}
@@ -97,11 +102,12 @@ async function DashboardContent({ params }: PageProps) {
                 </Button>
               )}
             </div>
-            <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-7 xl:grid-cols-3">
+            <h2 className="font-heading text-xl font-semibold tracking-tight">Quick actions</h2>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {sections.map(({ href, title, icon: Icon }) => (
-                <Link key={href} href={href} prefetch={false} className="flex items-center gap-3 rounded-xl border bg-background p-3 text-sm font-medium transition-colors hover:border-primary/50 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-secondary text-secondary-foreground"><Icon aria-hidden="true" className="size-[18px]" /></span>
-                  <span className="grow">{title}</span>
+                <Link key={href} href={href} prefetch={false} className="flex min-w-0 items-center gap-3 rounded-2xl border bg-card p-4 text-sm font-semibold shadow-sm transition-[translate,box-shadow,border-color,background-color] hover:border-primary/40 hover:bg-accent hover:shadow-md focus-visible:outline-2 focus-visible:outline-ring motion-safe:hover:-translate-y-0.5">
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground"><Icon aria-hidden="true" className="size-5" /></span>
+                  <span className="min-w-0 grow wrap-break-word">{title}</span>
                   <ArrowUpRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
                 </Link>
               ))}

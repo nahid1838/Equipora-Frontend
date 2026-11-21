@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { redirect } from "next/navigation"
+import { motion, useReducedMotion } from "framer-motion"
 import { Boxes, CalendarDays, CheckCircle, Clock, UsersRound, Wallet, type LucideIcon } from "lucide-react"
 import { EquipmentErrorState } from "@/components/equipment/EquipmentStates"
 import { getDashboardAnalytics } from "@/lib/api/dashboard"
@@ -13,25 +14,40 @@ type Point = { month: string; label: string; value: number }
 
 function MonthlyChart({ title, points, format }: { title: string; points: Point[]; format: (value: number) => string }) {
   const max = Math.max(0, ...points.map(({ value }) => value))
+  const reduceMotion = useReducedMotion()
 
   return (
-    <section className="min-w-0 rounded-2xl border bg-card p-4 sm:p-6">
+    <section className="min-w-0 rounded-2xl border bg-card p-4 shadow-sm sm:p-6">
       <h3 className="font-heading text-lg font-semibold">{title}</h3>
       <p className="mt-1 text-xs text-muted-foreground">Last six months · UTC</p>
       {max === 0 && <p className="mt-4 text-sm text-muted-foreground">No activity in this period.</p>}
-      <dl className="mt-4 space-y-3">
-        {points.map(({ month, label, value }) => (
-          <div key={month} className="space-y-1.5">
-            <div className="flex flex-wrap justify-between gap-x-2 text-xs sm:text-sm">
-              <dt className="text-muted-foreground">{label}</dt>
-              <dd className="min-w-0 font-medium break-all tabular-nums">{format(value)}</dd>
-            </div>
-            <div aria-hidden="true" className="h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${max ? (value / max) * 100 : 0}%` }} />
-            </div>
+      {points.length > 0 && (
+        <div className="mt-5">
+          <div aria-hidden="true" className="flex justify-between gap-2 font-mono text-[0.65rem] text-muted-foreground">
+            <span>{format(0)}</span>
+            <span>{format(max)}</span>
           </div>
-        ))}
-      </dl>
+          <dl className="mt-2 grid grid-cols-[repeat(6,minmax(0,1fr))] gap-1.5 border-b border-border/70 sm:gap-2">
+            {points.map(({ month, label, value }) => (
+              <div key={month} className="flex min-w-0 flex-col gap-2 pb-3 text-center" title={`${label} · ${format(value)}`}>
+                <dt className="order-2 text-[0.625rem] leading-tight text-muted-foreground sm:text-xs">{label}</dt>
+                <dd className="order-1 flex h-32 items-end rounded-t-lg bg-muted/40 px-1 sm:h-40 sm:px-2">
+                  <span className="sr-only">{format(value)}</span>
+                  <motion.span
+                    aria-hidden="true"
+                    initial={reduceMotion ? false : { scaleY: 0.92 }}
+                    animate={{ scaleY: 1 }}
+                    transition={{ duration: reduceMotion ? 0 : 0.3 }}
+                    className="w-full origin-bottom rounded-t-md bg-gradient-to-t from-chart-2 to-chart-1 motion-reduce:transform-none!"
+                    style={{ height: `${max ? (value / max) * 100 : 0}%` }}
+                  />
+                </dd>
+                <dd aria-hidden="true" className="order-3 wrap-break-word font-medium text-[0.625rem] tabular-nums sm:text-xs">{format(value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
     </section>
   )
 }
@@ -39,6 +55,7 @@ function MonthlyChart({ title, points, format }: { title: string; points: Point[
 export default function DashboardAnalytics({ role }: { role: "admin" | "owner" }) {
   const [result, setResult] = useState<Awaited<ReturnType<typeof getDashboardAnalytics>> | ApiError | null>(null)
   const [attempt, setAttempt] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -107,12 +124,16 @@ export default function DashboardAnalytics({ role }: { role: "admin" | "owner" }
     <section className="space-y-4" aria-label="Dashboard analytics">
       <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {metrics.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="min-w-0 rounded-2xl border bg-card p-4 sm:p-5">
-            <dt className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Icon aria-hidden="true" className="size-5 shrink-0 text-primary" /> {label}
+          <motion.div key={label} initial={reduceMotion ? false : { opacity: 0.86, y: 5 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25 }}
+            className="flex min-h-32 min-w-0 flex-col justify-between gap-3 rounded-2xl border bg-card p-4 shadow-sm transition-[box-shadow,border-color] hover:border-primary/30 hover:shadow-md motion-reduce:transform-none! motion-reduce:opacity-100! sm:p-5"
+          >
+            <dt className="flex min-w-0 items-center justify-between gap-2 text-sm font-medium text-muted-foreground">
+              <span>{label}</span>
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-secondary text-secondary-foreground"><Icon aria-hidden="true" className="size-4" /></span>
             </dt>
-            <dd className="mt-2 font-heading text-2xl font-bold break-words tabular-nums sm:text-3xl">{value}</dd>
-          </div>
+            <dd className="font-heading text-2xl font-bold tracking-tight wrap-break-word tabular-nums sm:text-3xl">{value}</dd>
+          </motion.div>
         ))}
       </dl>
       <div className="grid gap-4 md:grid-cols-2">

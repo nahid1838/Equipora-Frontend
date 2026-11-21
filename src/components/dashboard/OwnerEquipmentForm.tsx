@@ -114,7 +114,9 @@ export default function OwnerEquipmentForm({ equipment, onSaved, onCancel }: Pro
         router.push("/dashboard/owner/equipment")
       }
     } catch (error) {
-      setError(error instanceof ApiError ? error.message : "Could not save this equipment.")
+      const message = error instanceof ApiError ? error.message : "Could not save this equipment."
+      setError(message)
+      toast.error(equipment ? "Could not update equipment." : "Could not add equipment.", { description: message })
     } finally {
       if (!created) {
         saving.current = false
@@ -124,7 +126,7 @@ export default function OwnerEquipmentForm({ equipment, onSaved, onCancel }: Pro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-5 sm:p-7">
+    <form onSubmit={handleSubmit} className="max-w-5xl rounded-2xl border bg-card p-5 shadow-sm sm:p-8">
       <h2 className="font-heading text-xl font-semibold">{equipment ? "Edit equipment" : "Equipment listing"}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         {equipment ? "Update the listing information below." : "Your listing will be visible to customers after it is approved."}

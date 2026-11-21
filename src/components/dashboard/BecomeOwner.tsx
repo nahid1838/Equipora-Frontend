@@ -1,5 +1,6 @@
 "use client"
 
+import { toast } from "sonner"
 import { useEffect, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -46,10 +47,13 @@ export default function BecomeOwner() {
     setMessage("")
     try {
       const { data } = await submitApplication({ ...draft, reason })
+      toast.success("Owner application submitted for review.")
       setDraft(blank)
       setResult({ application: data, hasOwnerAccess: false })
     } catch (error) {
-      setMessage(error instanceof ApiError ? error.message : "Could not submit your application. Please try again.")
+      const message = error instanceof ApiError ? error.message : "Could not submit your application. Please try again."
+      setMessage(message)
+      toast.error("Could not submit the owner application.", { description: message })
       if (error instanceof ApiError && error.status === 409) refresh()
     } finally {
       setSaving(false)
@@ -61,7 +65,7 @@ export default function BecomeOwner() {
 
   const { application, hasOwnerAccess } = result
   return (
-    <section className="max-w-2xl rounded-2xl border bg-card p-5 sm:p-7">
+    <section className="max-w-3xl rounded-2xl border bg-card p-5 shadow-sm sm:p-8">
       {message && <p role="alert" className="mb-4 text-sm text-destructive">{message}</p>}
       {hasOwnerAccess ? (
         <div className="space-y-3">
