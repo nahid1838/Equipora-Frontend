@@ -64,12 +64,10 @@ function getFallbackMessage(status: number): string {
       return "The requested resource was not found."
     case 413:
       return "The request is too large."
-    case 500:
-      return "Something went wrong on the server. Please try again."
-    case 502:
-      return "An external service failed. Please try again later."
+    case 429:
+      return "Too many requests. Wait a moment and try again."
     default:
-      return `The request failed with status ${status}.`
+      return "The request could not be completed. Please try again."
   }
 }
 
@@ -83,19 +81,21 @@ async function getFreshAccessToken(): Promise<string> {
     // { data: null, error } — inspected in the installed package.
     result = await authClient.token()
   } catch {
-    throw new ApiError(
-      "Could not verify your session. Please sign in again.",
-      { status: 401 }
-    )
+    throw new ApiError("Could not reach the sign-in service. Please try again.", { isNetworkError: true })
   }
 
-  const token = result.data?.token.trim()
+  if (result.error && (!result.error.status || result.error.status >= 500)) {
+    throw new ApiError("Could not verify your session right now. Please try again.")
+  }
 
-  if (result.error || !token) {
+  if (result.error) {
     throw new ApiError("You must be signed in to perform this action.", {
       status: 401,
     })
   }
+
+  const token = typeof result.data?.token === "string" ? result.data.token.trim() : ""
+  if (!token) throw new ApiError("Could not verify your session right now. Please try again.")
 
   return token
 }
@@ -172,10 +172,10 @@ async function requestSuccess(
 
   const parsed = await readBody(response)
 
-  // HTTP errors: prefer the backend's message, otherwise use a friendly one.
+  // Keep actionable validation responses and hide service failures.
   if (!response.ok) {
     const backendMessage =
-      parsed.kind === "json" ? getBackendMessage(parsed.value) : null
+      response.status < 500 && parsed.kind === "json" ? getBackendMessage(parsed.value) : null
 
     throw new ApiError(
       backendMessage ?? getFallbackMessage(response.status),
@@ -183,22 +183,9 @@ async function requestSuccess(
     )
   }
 
-  if (parsed.kind === "empty") {
-    throw new ApiError("The server returned an empty response.", {
-      status: response.status,
-    })
-  }
-
-  if (parsed.kind === "invalid") {
-    throw new ApiError("The server returned an invalid JSON response.", {
-      status: response.status,
-    })
-  }
-
-  if (!isRecord(parsed.value) || parsed.value.success !== true) {
+  if (parsed.kind !== "json" || !isRecord(parsed.value) || parsed.value.success !== true) {
     throw new ApiError(
-      getBackendMessage(parsed.value) ??
-        "The server returned an unexpected response.",
+      "We could not read the server response. Please try again.",
       { status: response.status }
     )
   }
@@ -219,7 +206,7 @@ export async function apiRequest<T>(
   const payload = await requestSuccess(path, options)
 
   if (!("data" in payload)) {
-    throw new ApiError("The server response did not include data.")
+    throw new ApiError("We could not read the server response. Please try again.")
   }
 
   const result: ApiSuccess<T> = {
@@ -234,6 +221,14 @@ export async function apiRequest<T>(
   return result
 }
 
+export async function apiRequestList<T>(path: string, options: ApiRequestOptions): Promise<ApiSuccess<T[]>> {
+  const result = await apiRequest<T[]>(path, options)
+  if (!Array.isArray(result.data)) {
+    throw new ApiError("We could not read the results. Please try again.")
+  }
+  return result
+}
+
 // For endpoints that only return a message (health check, delete, etc.):
 //   const result = await apiRequestMessage("/api/health", { auth: "public" })
 //   result.message
@@ -245,7 +240,7 @@ export async function apiRequestMessage(
   const message = payload.message
 
   if (typeof message !== "string" || !message.trim()) {
-    throw new ApiError("The server response did not include a message.")
+    throw new ApiError("We could not verify the server response. Please try again.")
   }
 
   return { success: true, message: message.trim() }

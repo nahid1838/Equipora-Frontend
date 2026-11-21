@@ -11,7 +11,7 @@ export function getApiBaseUrl(): string {
 
   if (!rawUrl) {
     throw new ApiError(
-      "NEXT_PUBLIC_API_URL is not set. Add it to the frontend .env file."
+      "Equipora could not connect to its service. Please try again later."
     )
   }
 
@@ -25,7 +25,7 @@ export function getApiBaseUrl(): string {
     }
   } catch {
     throw new ApiError(
-      "NEXT_PUBLIC_API_URL must be a valid http or https URL."
+      "Equipora could not connect to its service. Please try again later."
     )
   }
 

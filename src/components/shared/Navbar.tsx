@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowRight,
-  ChevronDown,
   Hexagon,
   LayoutDashboard,
   LogOut,
@@ -19,7 +18,7 @@ import { authClient } from "@/lib/auth-client";
 // Navigation shown in the navbar on desktop and inside the mobile menu
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Browse", href: "/equipment", hasDropdown: true },
+  { label: "Browse", href: "/equipment" },
   { label: "About", href: "/about" },
   { label: "How It Works", href: "/how-it-works" },
   { label: "Contact", href: "/contact" },
@@ -27,8 +26,11 @@ const navLinks = [
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
   const router = useRouter();
   const { data: session } = authClient.useSession();
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -38,10 +40,18 @@ const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <header
+      className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && isMobileMenuOpen) {
+          closeMobileMenu();
+          menuButton.current?.focus();
+        }
+      }}
+    >
+      <nav aria-label="Main navigation" className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href="/" onClick={closeMobileMenu} className="flex items-center gap-2.5 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
           <span className="relative flex h-9 w-9 items-center justify-center">
             <Hexagon className="h-9 w-9 fill-primary text-primary" strokeWidth={1} />
             <span className="absolute text-sm font-bold text-primary-foreground">E</span>
@@ -55,10 +65,10 @@ const Navbar = () => {
             <li key={link.label}>
               <Link
                 href={link.href}
-                className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                aria-current={pathname === link.href ? "page" : undefined}
+                className="flex items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground"
               >
                 {link.label}
-                {link.hasDropdown && <ChevronDown className="h-3.5 w-3.5" />}
               </Link>
             </li>
           ))}
@@ -74,7 +84,7 @@ const Navbar = () => {
                 variant="outline"
                 className="hidden sm:inline-flex"
                 nativeButton={false}
-                render={<Link href="/dashboard" />}
+                render={<Link href="/dashboard" onClick={closeMobileMenu} />}
               >
                 <LayoutDashboard data-icon="inline-start" className="h-4 w-4" />
                 Dashboard
@@ -94,14 +104,14 @@ const Navbar = () => {
                 variant="outline"
                 className="hidden sm:inline-flex"
                 nativeButton={false}
-                render={<Link href="/sign-in" />}
+                render={<Link href="/sign-in" onClick={closeMobileMenu} />}
               >
                 Sign In
               </Button>
               <Button
                 className="hidden sm:inline-flex"
                 nativeButton={false}
-                render={<Link href="/sign-up" />}
+                render={<Link href="/sign-up" onClick={closeMobileMenu} />}
               >
                 Get Started
                 <ArrowRight data-icon="inline-end" className="h-4 w-4" />
@@ -114,8 +124,11 @@ const Navbar = () => {
             variant="ghost"
             size="icon"
             className="lg:hidden"
-            aria-label="Open menu"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            ref={menuButton}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-controls="mobile-navigation"
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -123,53 +136,52 @@ const Navbar = () => {
       </nav>
 
       {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="border-t bg-background lg:hidden">
-          <div className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="block rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
+      <nav aria-label="Mobile navigation" id="mobile-navigation" hidden={!isMobileMenuOpen} className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t bg-background lg:hidden">
+        <div className="mx-auto max-w-7xl space-y-1 px-4 py-4 sm:px-6">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              aria-current={pathname === link.href ? "page" : undefined}
+              className="block rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring aria-[current=page]:bg-accent aria-[current=page]:text-foreground"
+              onClick={closeMobileMenu}
+            >
+              {link.label}
+            </Link>
+          ))}
 
-            <div className="flex gap-2.5 pt-3">
-              {session ? (
+          <div className="flex gap-2.5 pt-3">
+            {session ? (
+              <Button
+                className="flex-1"
+                nativeButton={false}
+                render={<Link href="/dashboard" onClick={closeMobileMenu} />}
+              >
+                <LayoutDashboard data-icon="inline-start" className="h-4 w-4" />
+                Dashboard
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  nativeButton={false}
+                  render={<Link href="/sign-in" onClick={closeMobileMenu} />}
+                >
+                  Sign In
+                </Button>
                 <Button
                   className="flex-1"
                   nativeButton={false}
-                  render={<Link href="/dashboard" />}
+                  render={<Link href="/sign-up" onClick={closeMobileMenu} />}
                 >
-                  <LayoutDashboard data-icon="inline-start" className="h-4 w-4" />
-                  Dashboard
+                  Get Started
                 </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    nativeButton={false}
-                    render={<Link href="/sign-in" />}
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="flex-1"
-                    nativeButton={false}
-                    render={<Link href="/sign-up" />}
-                  >
-                    Get Started
-                  </Button>
-                </>
-              )}
-            </div>
+              </>
+            )}
           </div>
         </div>
-      )}
+      </nav>
     </header>
   );
 };

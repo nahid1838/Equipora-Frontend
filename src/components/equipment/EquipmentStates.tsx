@@ -11,13 +11,13 @@ export const EquipmentEmptyState = ({ onReset }: EquipmentEmptyStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border bg-card px-6 py-16 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
-        <SearchX className="h-6 w-6" />
+        <SearchX aria-hidden="true" className="h-6 w-6" />
       </span>
       <h2 className="mt-4 font-heading text-lg font-semibold">
         No equipment found
       </h2>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-        Try a different search term or adjust your filters.
+        {onReset ? "Try a different search term or adjust your filters." : "There are no approved listings to browse right now."}
       </p>
       {onReset && (
         <Button type="button" variant="outline" className="mt-5" onClick={onReset}>
@@ -31,21 +31,23 @@ export const EquipmentEmptyState = ({ onReset }: EquipmentEmptyStateProps) => {
 type EquipmentErrorStateProps = {
   message: string
   onRetry: () => void
+  title?: string
 }
 
 export const EquipmentErrorState = ({
   message,
   onRetry,
+  title = "Could not load equipment",
 }: EquipmentErrorStateProps) => {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/5 px-6 py-16 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-        <AlertCircle className="h-6 w-6" />
+        <AlertCircle aria-hidden="true" className="h-6 w-6" />
       </span>
       <h2 className="mt-4 font-heading text-lg font-semibold">
-        Could not load equipment
+        {title}
       </h2>
-      <p className="mt-1 max-w-md text-sm text-muted-foreground">{message}</p>
+      <p role="alert" className="mt-1 max-w-md text-sm text-muted-foreground">{message}</p>
       <Button type="button" className="mt-5" onClick={onRetry}>
         Try again
       </Button>

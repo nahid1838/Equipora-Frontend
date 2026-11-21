@@ -3,14 +3,13 @@ import PlatformBenefits from "@/components/home/PlatformBenefits";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Testimonials from "@/components/home/Testimonials";
 import FinalCTA from "@/components/home/FinalCTA";
+import HomepageCatalog from "@/components/home/HomepageCatalog";
 
 export default function Home() {
   return (
     <>
-      {/* Homepage sections are added part by part.
-          NOTE: Featured Equipment and Popular Categories sections are
-          intentionally excluded for now (requested by the owner). */}
       <Hero />
+      <HomepageCatalog />
       <PlatformBenefits />
       <WhyChooseUs />
       <Testimonials />

@@ -1,10 +1,22 @@
 import type { ApiSuccess, Pagination } from "@/types/api"
-import type { CreateEquipmentPayload, Equipment, EquipmentQuery, EquipmentStatus, UpdateEquipmentPayload } from "@/types/equipment"
-import { apiRequest, apiRequestMessage } from "./client"
+import type { CreateEquipmentPayload, Equipment, EquipmentCategory, EquipmentQuery, EquipmentStatus, UpdateEquipmentPayload } from "@/types/equipment"
+import { apiRequest, apiRequestList, apiRequestMessage } from "./client"
 import { ApiError } from "./errors"
 
+export type EquipmentCategoryCount = { category: EquipmentCategory; count: number }
+
+export async function getFeaturedEquipment(signal?: AbortSignal): Promise<Equipment[]> {
+  const { data } = await apiRequestList<Equipment>("/api/equipment/featured", { auth: "public", signal })
+  return data
+}
+
+export async function getEquipmentCategories(signal?: AbortSignal): Promise<EquipmentCategoryCount[]> {
+  const { data } = await apiRequestList<EquipmentCategoryCount>("/api/equipment/categories", { auth: "public", signal })
+  return data
+}
+
 export async function getAdminEquipment(signal?: AbortSignal): Promise<Equipment[]> {
-  const { data } = await apiRequest<Equipment[]>("/api/equipment/admin/all", {
+  const { data } = await apiRequestList<Equipment>("/api/equipment/admin/all", {
     auth: "protected", signal,
   })
   return data
@@ -22,7 +34,7 @@ export async function moderateEquipment(
 }
 
 export async function getOwnedEquipment(signal?: AbortSignal): Promise<Equipment[]> {
-  const { data } = await apiRequest<Equipment[]>("/api/equipment/owner/mine", {
+  const { data } = await apiRequestList<Equipment>("/api/equipment/owner/mine", {
     auth: "protected", signal,
   })
   return data
@@ -134,14 +146,14 @@ export async function getEquipmentList(
     ? `/api/equipment?${queryString}`
     : "/api/equipment"
 
-  const result = await apiRequest<Equipment[]>(path, {
+  const result = await apiRequestList<Equipment>(path, {
     auth: "public",
     signal,
   })
 
   if (!result.pagination) {
     throw new ApiError(
-      "The server response did not include pagination information."
+      "We could not read the results. Please try again."
     )
   }
 

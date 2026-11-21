@@ -289,7 +289,7 @@ const EquipmentBrowser = () => {
           </p>
 
           {currentResult.response.data.length === 0 ? (
-            <EquipmentEmptyState onReset={handleReset} />
+            <EquipmentEmptyState onReset={query.search || query.category || query.rentalType || query.minPrice !== undefined || query.maxPrice !== undefined || query.available !== undefined ? handleReset : undefined} />
           ) : (
             <>
               <EquipmentGrid equipment={currentResult.response.data} />
