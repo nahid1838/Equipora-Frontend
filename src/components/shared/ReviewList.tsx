@@ -1,6 +1,23 @@
+"use client"
+
 import Image from "next/image"
 import { Star } from "lucide-react"
+import { useState } from "react"
 import type { ApprovedReview } from "@/lib/reviews"
+
+function ReviewAvatar({ name, image }: Pick<ApprovedReview, "name" | "image">) {
+  const [failedImage, setFailedImage] = useState<string>()
+
+  if (image && /^https?:\/\//i.test(image) && failedImage !== image) {
+    return <Image src={image} alt="" width={44} height={44} unoptimized referrerPolicy="no-referrer" className="size-11 shrink-0 rounded-full border object-cover" onError={() => setFailedImage(image)} />
+  }
+
+  return (
+    <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full border bg-secondary text-sm font-bold text-secondary-foreground">
+      {name.trim().split(/\s+/).slice(0, 2).map((word) => word.charAt(0)).join("").toUpperCase()}
+    </span>
+  )
+}
 
 export default function ReviewList({ reviews }: { reviews: readonly ApprovedReview[] }) {
   if (reviews.length === 0) {
@@ -29,13 +46,7 @@ export default function ReviewList({ reviews }: { reviews: readonly ApprovedRevi
             “{comment}”
           </blockquote>
           <div className="mt-6 flex items-center gap-3">
-            {image ? (
-              <Image src={image} alt="" width={44} height={44} unoptimized referrerPolicy="no-referrer" className="size-11 shrink-0 rounded-full border object-cover" />
-            ) : (
-              <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full border bg-secondary text-sm font-bold text-secondary-foreground">
-                {name.trim().split(/\s+/).slice(0, 2).map((word) => word.charAt(0)).join("").toUpperCase()}
-              </span>
-            )}
+            <ReviewAvatar name={name} image={image} />
             <div className="min-w-0 wrap-break-word">
               <p className="text-sm font-bold">{name}</p>
               {role && <p className="text-xs text-muted-foreground">{role}</p>}
