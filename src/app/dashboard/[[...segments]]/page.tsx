@@ -20,7 +20,7 @@ import OwnerEquipmentForm from "@/components/dashboard/OwnerEquipmentForm"
 import EquipmentManagementList from "@/components/dashboard/EquipmentManagementList"
 import ProfileSettings from "@/components/dashboard/ProfileSettings"
 import { Button } from "@/components/ui/button"
-import { auth } from "@/lib/auth"
+import { getAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Dashboard | Equipora" }
 
@@ -49,8 +49,10 @@ type PageProps = { params: Promise<{ segments?: string[] }> }
 async function DashboardContent({ params }: PageProps) {
   const { segments = [] } = await params
   const [requestedRole, section] = segments
+  const requestHeaders = await headers()
+  const auth = await getAuth()
   const session = await auth.api.getSession({
-    headers: await headers(),
+    headers: requestHeaders,
     query: { disableCookieCache: true, disableRefresh: true },
   })
 

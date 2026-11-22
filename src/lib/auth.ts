@@ -26,7 +26,7 @@ function optionalProfileField(validate: (value: unknown) => string | undefined) 
 const client = new MongoClient(process.env.MONGODB_URI as string);
 const db = client.db("equiporadb");
 
-export const auth = betterAuth({
+const createAuth = () => betterAuth({
   // Used for auth endpoints and as the JWT issuer/audience.
   // The Express backend checks these exact values.
   baseURL: process.env.BETTER_AUTH_URL as string,
@@ -75,3 +75,22 @@ export const auth = betterAuth({
     }),
   ],
 });
+
+type Auth = ReturnType<typeof createAuth>;
+let auth: Auth | undefined;
+
+export async function getAuth(): Promise<Auth> {
+  try {
+    // The driver shares concurrent connect calls and can reconnect a closed topology.
+    await client.connect();
+  } catch (error) {
+    // Log the failure category without connection strings or credentials.
+    console.error("Auth database connection failed", {
+      name: error instanceof Error ? error.name : "UnknownError",
+    });
+    throw new Error("Authentication is temporarily unavailable.");
+  }
+
+  // Initialize the adapter only after connecting, since it can start index operations.
+  return auth ??= createAuth();
+}
